@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Order Management – Oak & Linen Furniture</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ================= FIREBASE ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      onSnapshot,
+      doc,
+      updateDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    /* 🔴 USE SAME CONFIG AS ALL OTHER PAGES */
+    const firebaseConfig = {
+       apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
+       authDomain: "oak-n-linen-project.firebaseapp.com",
+       projectId: "oak-n-linen-project",
+       storageBucket: "oak-n-linen-project.firebasestorage.app",
+       messagingSenderId: "783016997772",
+       appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const tableBody = document.getElementById("ordersTable");
+
+      // ================= REAL-TIME LISTENER =================
+      onSnapshot(collection(db, "orders"), (snapshot) => {
+        tableBody.innerHTML = "";
+
+        snapshot.forEach((docSnap) => {
+          const order = docSnap.data();
+
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${docSnap.id.slice(0, 6)}</td>
+            <td>${order.customerName}</td>
+            <td>${order.product}</td>
+            <td>${order.quantity}</td>
+            <td class="address">
+              ${order.address ? order.address.replace(/\n/g, "<br>") : "<em>Not provided</em>"}
+            </td>
+            <td>
+              <select data-id="${docSnap.id}">
+                <option ${order.status === "New" ? "selected" : ""}>New</option>
+                <option ${order.status === "Preparing" ? "selected" : ""}>Preparing</option>
+                <option ${order.status === "Ready" ? "selected" : ""}>Ready</option>
+                <option ${order.status === "Out for Delivery" ? "selected" : ""}>Out for Delivery</option>
+                <option ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
+              </select>
+            </td>
+            <td>
+              <textarea data-id="${docSnap.id}">${order.notes || ""}</textarea>
+            </td>
+            <td>${order.updatedAt?.toDate().toLocaleString() || "—"}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+
+        attachUpdateHandlers();
+      });
+
+      // ================= UPDATE HANDLERS =================
+      function attachUpdateHandlers() {
+
+        document.querySelectorAll("select").forEach(select => {
+          select.addEventListener("change", async (e) => {
+            const id = e.target.dataset.id;
+            await updateDoc(doc(db, "orders", id), {
+              status: e.target.value,
+              updatedAt: serverTimestamp()
+            });
+          });
+        });
+
+        document.querySelectorAll("textarea").forEach(textarea => {
+          textarea.addEventListener("blur", async (e) => {
+            const id = e.target.dataset.id;
+            await updateDoc(doc(db, "orders", id), {
+              notes: e.target.value,
+              updatedAt: serverTimestamp()
+            });
+          });
+        });
+
+      }
+    });
+  </script>
+
+  <!-- ================= STYLES ================= -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
+    body { background-color: #EFE7E1; color: #2B2B2B; min-height: 100vh; display: flex; flex-direction: column; }
+    a { text-decoration: none; color: inherit; }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 4px solid #3E2723;
+      padding: 18px 36px;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      font-size: 22px;
+      color: #3E2723;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      background-color: #3E2723;
+      color: #C6A75E;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    nav a {
+      margin-left: 24px;
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1400px;
+      margin: 40px auto;
+      padding: 0 36px;
+    }
+
+    h1 {
+      color: #3E2723;
+      margin-bottom: 10px;
+      font-size: 34px;
+    }
+
+    .subtitle {
+      margin-bottom: 25px;
+      max-width: 1000px;
+      line-height: 1.6;
+    }
+
+    .notice {
+      background-color: #FFF3CD;
+      color: #856404;
+      border-left: 6px solid #FFCC00;
+      padding: 14px 18px;
+      border-radius: 6px;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      background-color: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #3E2723;
+      color: #ffffff;
+      text-align: left;
+    }
+
+    tr:hover {
+      background-color: #F8F5F2;
+    }
+
+    .address {
+      max-width: 220px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    select, textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    footer {
+      background-color: #3E2723;
+      color: #EFE7E1;
+      padding: 30px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="header-container">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">OL</div>
+      Oak & Linen
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="order.html">Place Order</a>
+      <a href="order-management.html">Order Management</a>
+      <a href="operations.html">Operations</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main>
+  <h1>Order Management</h1>
+  <p class="subtitle">
+    Track furniture orders from placement through production, delivery, and completion.
+    Delivery address and status updates are synchronised in real time.
+  </p>
+
+  <div class="notice">
+    ⚠ Staff access only. Authentication will be enforced in production.
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Delivery Address</th>
+          <th>Status</th>
+          <th>Internal Notes</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTable"></tbody>
+    </table>
+  </div>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  © 2025 Oak & Linen Furniture · Powered by Firebase & GitHub Pages
+</footer>
+
+</body>
+</html>
