@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Place an Order – Oak & Linen Furniture</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ================= FIREBASE ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    /* 🔴 USE SAME CONFIG IN ALL FILES */
+    const firebaseConfig = {
+       apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
+       authDomain: "oak-n-linen-project.firebaseapp.com",
+       projectId: "oak-n-linen-project",
+       storageBucket: "oak-n-linen-project.firebasestorage.app",
+       messagingSenderId: "783016997772",
+       appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("orderForm");
+      const message = document.getElementById("formMessage");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const customerName = document.getElementById("customerName").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const product = document.getElementById("product").value.trim();
+        const quantity = parseInt(document.getElementById("quantity").value);
+        const address = document.getElementById("address").value.trim();
+        const notes = document.getElementById("notes").value.trim();
+
+        if (!customerName || !email || !product || !address || quantity < 1) {
+          message.textContent = "Please complete all required fields, including delivery address.";
+          message.className = "message error";
+          return;
+        }
+
+        try {
+          await addDoc(collection(db, "orders"), {
+            customerName,
+            email,
+            product,
+            quantity,
+            address,
+            notes,
+            status: "New",
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+
+          message.textContent =
+            "Order submitted successfully. Your order is now being processed.";
+          message.className = "message success";
+          form.reset();
+
+        } catch (err) {
+          console.error(err);
+          message.textContent = "Error submitting order. Please try again.";
+          message.className = "message error";
+        }
+      });
+    });
+  </script>
+
+  <!-- ================= STYLES ================= -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
+    body { background-color: #EFE7E1; color: #2B2B2B; min-height: 100vh; display: flex; flex-direction: column; }
+    a { text-decoration: none; color: inherit; }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 4px solid #3E2723;
+      padding: 18px 36px;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      font-size: 22px;
+      color: #3E2723;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      background-color: #3E2723;
+      color: #C6A75E;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    nav a {
+      margin-left: 24px;
+      font-weight: 600;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 50px auto;
+      padding: 0 36px;
+    }
+
+    h1 {
+      color: #3E2723;
+      margin-bottom: 12px;
+      font-size: 34px;
+    }
+
+    .subtitle {
+      margin-bottom: 35px;
+      max-width: 750px;
+      line-height: 1.6;
+    }
+
+    .form-card {
+      background-color: #ffffff;
+      padding: 36px;
+      border-radius: 14px;
+      max-width: 750px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      border-top: 6px solid #2E5E4E;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #3E2723;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      background-color: #2E5E4E;
+      color: #ffffff;
+      border: none;
+      padding: 14px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .message {
+      margin-top: 18px;
+      font-weight: 600;
+    }
+
+    .error { color: #B00020; }
+    .success { color: #2E7D32; }
+
+    footer {
+      background-color: #3E2723;
+      color: #EFE7E1;
+      padding: 30px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="header-container">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">OL</div>
+      Oak & Linen
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="order.html">Place Order</a>
+      <a href="order-management.html">Order Management</a>
+      <a href="operations.html">Operations</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main>
+  <h1>Place an Order</h1>
+  <p class="subtitle">
+    Submit your furniture order below. Delivery details are required to ensure
+    accurate dispatch and tracking.
+  </p>
+
+  <div class="form-card">
+    <form id="orderForm">
+
+      <div class="form-group">
+        <label>Customer Name *</label>
+        <input id="customerName" required />
+      </div>
+
+      <div class="form-group">
+        <label>Email Address *</label>
+        <input id="email" type="email" required />
+      </div>
+
+      <div class="form-group">
+        <label>Product *</label>
+        <input id="product" placeholder="e.g. Oak Dining Table" required />
+      </div>
+
+      <div class="form-group">
+        <label>Quantity *</label>
+        <input id="quantity" type="number" min="1" value="1" required />
+      </div>
+
+      <div class="form-group">
+        <label>Delivery Address *</label>
+        <textarea id="address" placeholder="Street, City, Postcode" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Additional Notes (optional)</label>
+        <textarea id="notes"></textarea>
+      </div>
+
+      <button type="submit">Submit Order</button>
+      <div id="formMessage" class="message"></div>
+
+    </form>
+  </div>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  © 2025 Oak & Linen Furniture · Powered by Firebase & GitHub Pages
+</footer>
+
+</body>
+</html>
