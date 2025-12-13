@@ -5,27 +5,15 @@
   <title>Oak & Linen Furniture – Order Management Platform</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ================= FIREBASE INIT (SAFE) ================= -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
-    /* 🔴 USE THE SAME CONFIG AS ALL OTHER FILES */
-    const firebaseConfig = {
-       apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
-       authDomain: "oak-n-linen-project.firebaseapp.com",
-       projectId: "oak-n-linen-project",
-       storageBucket: "oak-n-linen-project.firebasestorage.app",
-       messagingSenderId: "783016997772",
-       appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
-    };
-
-    // Initialise Firebase (no database calls here)
-    initializeApp(firebaseConfig);
-  </script>
-
-  <!-- ================= STYLES ================= -->
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
+    /* ========== RESET ========== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
     body {
       background-color: #EFE7E1;
       color: #2B2B2B;
@@ -34,9 +22,30 @@
       flex-direction: column;
     }
 
-    a { text-decoration: none; color: inherit; }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
 
-    /* HEADER */
+    <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+  // 🔴 USE THE SAME CONFIG AS OTHER FILES
+  const firebaseConfig = {
+       apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
+       authDomain: "oak-n-linen-project.firebaseapp.com",
+       projectId: "oak-n-linen-project",
+       storageBucket: "oak-n-linen-project.firebasestorage.app",
+       messagingSenderId: "783016997772",
+       appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
+    };ppId: "YOUR_APP_ID"
+  };
+
+  // Initialise Firebase (safe even if unused)
+  initializeApp(firebaseConfig);
+</script>
+
+    /* ========== HEADER ========== */
     header {
       background-color: #ffffff;
       border-bottom: 4px solid #3E2723;
@@ -51,6 +60,7 @@
       align-items: center;
     }
 
+    /* Logo */
     .logo {
       display: flex;
       align-items: center;
@@ -75,11 +85,14 @@
     nav a {
       margin-left: 24px;
       font-weight: 600;
+      color: #3E2723;
     }
 
-    nav a:hover { color: #2E5E4E; }
+    nav a:hover {
+      color: #2E5E4E;
+    }
 
-    /* MAIN */
+    /* ========== MAIN ========== */
     main {
       flex: 1;
       max-width: 1200px;
@@ -87,8 +100,9 @@
       padding: 0 36px;
     }
 
-    /* HERO */
+    /* ========== HERO ========== */
     .hero {
+      position: relative;
       background:
         linear-gradient(rgba(62,39,35,0.8), rgba(62,39,35,0.8)),
         url('https://i.postimg.cc/TwyCXHdN/Gemini-Generated-Image-h3ps4gh3ps4gh3ps.png');
@@ -103,13 +117,13 @@
     .hero h1 {
       font-size: 42px;
       margin-bottom: 18px;
-      max-width: 750px;
+      max-width: 720px;
     }
 
     .hero p {
       font-size: 19px;
       line-height: 1.6;
-      max-width: 700px;
+      max-width: 680px;
       margin-bottom: 35px;
     }
 
@@ -119,6 +133,7 @@
       border-radius: 6px;
       margin-right: 14px;
       font-weight: bold;
+      letter-spacing: 0.5px;
     }
 
     .btn-primary {
@@ -131,7 +146,7 @@
       color: #ffffff;
     }
 
-    /* SECTIONS */
+    /* ========== SECTIONS ========== */
     section {
       margin-bottom: 60px;
     }
@@ -143,8 +158,9 @@
     }
 
     section p {
-      max-width: 900px;
+      max-width: 850px;
       line-height: 1.7;
+      font-size: 16px;
     }
 
     .cards {
@@ -167,7 +183,7 @@
       color: #2E5E4E;
     }
 
-    /* FOOTER */
+    /* ========== FOOTER ========== */
     footer {
       background-color: #3E2723;
       color: #EFE7E1;
@@ -188,8 +204,8 @@
       color: #C6A75E;
     }
 
-    .footer-section p,
-    .footer-section a {
+    .footer-section a,
+    .footer-section p {
       color: #EFE7E1;
       margin-bottom: 6px;
       display: block;
@@ -206,112 +222,131 @@
 
 <body>
 
-<!-- ================= HEADER ================= -->
-<header>
-  <div class="header-container">
-    <a href="index.html" class="logo">
-      <div class="logo-icon">OL</div>
-      Oak & Linen
-    </a>
-    <nav>
-      <a href="index.html">Home</a>
-      <a href="order.html">Place Order</a>
-      <a href="order-management.html">Order Management</a>
-      <a href="operations.html">Operations</a>
-    </nav>
-  </div>
-</header>
+  <!-- HEADER -->
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">OL</div>
+        Oak & Linen
+      </a>
 
-<!-- ================= MAIN ================= -->
-<main>
-
-  <!-- HERO -->
-  <div class="hero">
-    <h1>Real-Time Order Management for Furniture Businesses</h1>
-    <p>
-      A cloud-based platform designed to eliminate lost orders, improve operational
-      visibility, and track furniture orders from placement to final delivery.
-    </p>
-    <div class="hero-buttons">
-      <a href="order.html" class="btn-primary">Place an Order</a>
-      <a href="order-management.html" class="btn-secondary">Order Management</a>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="order.html">Place Order</a>
+        <a href="order-management.html">Order Management</a>
+        <a href="operations.html">Operations</a>
+      </nav>
     </div>
-  </div>
+  </header>
 
-  <!-- PROBLEM -->
-  <section>
-    <h2>The Business Challenge</h2>
-    <p>
-      Furniture businesses operate with long production cycles and complex delivery
-      workflows. Without a real-time system, orders can be delayed, misplaced, or
-      lack visibility for both staff and customers.
-    </p>
-  </section>
+  <!-- MAIN -->
+  <main>
 
-  <!-- SOLUTION -->
-  <section>
-    <h2>Our Cloud-Based Solution</h2>
-    <div class="cards">
-      <div class="card">
-        <h3>Customer Order Placement</h3>
-        <p>
-          Customers submit orders directly into a secure cloud database, ensuring
-          every order is recorded accurately from the start.
-        </p>
-      </div>
-      <div class="card">
-        <h3>Order Management</h3>
-        <p>
-          Staff track and update orders in real time as they move through production
-          and delivery stages.
-        </p>
-      </div>
-      <div class="card">
-        <h3>Operational Insights</h3>
-        <p>
-          Management gains live visibility into workload, throughput, and delivery
-          progress across the business.
-        </p>
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Real-Time Order Management for Furniture Businesses</h1>
+      <p>
+        A modern cloud platform designed to eliminate lost orders, improve operational
+        visibility, and connect customers, staff, and management through real-time data.
+      </p>
+      <div class="hero-buttons">
+        <a href="order.html" class="btn-primary">Place an Order</a>
+        <a href="order-management.html" class="btn-secondary">Order Management</a>
       </div>
     </div>
-  </section>
 
-  <!-- TECHNOLOGY -->
-  <section>
-    <h2>Technology Stack</h2>
-    <p>
-      Built using HTML, CSS, and JavaScript on the frontend, Firebase Firestore for
-      real-time cloud data synchronisation, and GitHub Pages for secure hosting.
-    </p>
-  </section>
+    <!-- PROBLEM -->
+    <section>
+      <h2>The Business Challenge</h2>
+      <p>
+        Furniture businesses operate with long production cycles and multiple handover
+        points. Without a central real-time system, orders become difficult to track,
+        updates are missed, and customers lose confidence in the ordering process.
+      </p>
+    </section>
 
-</main>
+    <!-- SOLUTION -->
+    <section>
+      <h2>Our Cloud-Based Solution</h2>
+      <div class="cards">
+        <div class="card">
+          <h3>Customer Order Placement</h3>
+          <p>
+            Customers place orders directly into a shared cloud system, ensuring every
+            order is recorded accurately from the moment it is submitted.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Order Management</h3>
+          <p>
+            Staff manage and update orders through live status changes as they move
+            through production and collection stages.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Operational Visibility</h3>
+          <p>
+            Management gains real-time insight into workload, throughput, and potential
+            bottlenecks through live operational data.
+          </p>
+        </div>
+      </div>
+    </section>
 
-<!-- ================= FOOTER ================= -->
-<footer>
-  <div class="footer-container">
-    <div class="footer-section">
-      <h4>Oak & Linen Furniture</h4>
-      <p>Premium furniture supported by real-time digital operations.</p>
+    <!-- HOW IT WORKS -->
+    <section>
+      <h2>How It Works</h2>
+      <p>
+        Once an order is placed, it appears instantly across the system. As staff update
+        the order status, all changes are synchronised in real time across operational
+        and management views.
+      </p>
+    </section>
+
+    <!-- TECHNOLOGY -->
+    <section>
+      <h2>Technology Stack</h2>
+      <p>
+        The platform is built using HTML, CSS, and JavaScript on the frontend, Firebase
+        Firestore for real-time cloud data synchronisation, and GitHub Pages for secure
+        and scalable hosting.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>Oak & Linen Furniture</h4>
+        <p>Premium furniture supported by real-time digital operations.</p>
+      </div>
+
+      <div class="footer-section">
+        <h4>Contact</h4>
+        <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
+        <a href="tel:+35315550199">+353 1 555 0199</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Technology</h4>
+        <p>Powered by Firebase</p>
+        <p>Hosted on GitHub Pages</p>
+      </div>
     </div>
 
-    <div class="footer-section">
-      <h4>Contact</h4>
-      <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
-      <a href="tel:+35315550199">+353 1 555 0199</a>
+    <div class="footer-bottom">
+      © 2025 Oak & Linen Furniture. All rights reserved.
     </div>
-
-    <div class="footer-section">
-      <h4>Technology</h4>
-      <p>Powered by Firebase</p>
-      <p>Hosted on GitHub Pages</p>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    © 2025 Oak & Linen Furniture. All rights reserved.
-  </div>
-</footer>
+  </footer>
 
 </body>
 </html>
