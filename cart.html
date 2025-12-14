@@ -5,7 +5,7 @@
   <title>Your Cart – Oak & Linen Furniture</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ================= FIREBASE CONFIG (SAFE) ================= -->
+  <!-- ================= FIREBASE INIT (CONSISTENCY ONLY) ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
@@ -21,17 +21,11 @@
     initializeApp(firebaseConfig);
   </script>
 
-  <!-- ================= STYLES ================= -->
+  <!-- ================= STYLES (MATCH PRODUCTS PAGE) ================= -->
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
-
-    body {
-      background-color: #EFE7E1;
-      color: #2B2B2B;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    body { background-color: #EFE7E1; color: #2B2B2B; min-height: 100vh; display: flex; flex-direction: column; }
+    a { text-decoration: none; color: inherit; }
 
     header {
       background-color: #ffffff;
@@ -54,7 +48,6 @@
       font-weight: bold;
       font-size: 22px;
       color: #3E2723;
-      text-decoration: none;
     }
 
     .logo-icon {
@@ -66,13 +59,22 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      font-weight: bold;
     }
 
     nav a {
       margin-left: 24px;
       font-weight: 600;
-      text-decoration: none;
-      color: inherit;
+      position: relative;
+    }
+
+    #cartCount {
+      background: #2E5E4E;
+      color: #fff;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 6px;
     }
 
     main {
@@ -84,15 +86,15 @@
 
     h1 {
       color: #3E2723;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       font-size: 34px;
     }
 
-    .cart-container {
+    .cart-box {
       background-color: #ffffff;
       border-radius: 14px;
       padding: 28px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
     }
 
     table {
@@ -103,41 +105,42 @@
     th, td {
       padding: 14px;
       border-bottom: 1px solid #eee;
+      text-align: left;
     }
 
     th {
       background-color: #3E2723;
       color: #ffffff;
-      text-align: left;
     }
 
-    .controls button {
+    .qty-controls button {
       margin-right: 6px;
       padding: 4px 8px;
       cursor: pointer;
     }
 
-    .total-row {
+    .total {
+      text-align: right;
       font-size: 20px;
       font-weight: bold;
-      text-align: right;
       margin-top: 20px;
     }
 
     .actions {
       margin-top: 30px;
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
       gap: 15px;
     }
 
     button.primary {
-      background-color: #3E2723;
-      color: white;
+      background-color: #2E5E4E;
+      color: #ffffff;
       border: none;
       padding: 12px 24px;
       border-radius: 8px;
-      font-weight: 600;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     button.secondary {
@@ -145,7 +148,8 @@
       border: none;
       padding: 12px 24px;
       border-radius: 8px;
-      font-weight: 600;
+      font-weight: bold;
+      cursor: pointer;
     }
 
     .empty {
@@ -165,6 +169,7 @@
 
 <body>
 
+<!-- ================= HEADER ================= -->
 <header>
   <div class="header-container">
     <a href="index.html" class="logo">
@@ -174,18 +179,20 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
-      <a href="order.html">Cart</a>
+      <a href="cart.html">Cart<span id="cartCount"></span></a>
       <a href="order.html">Place Order</a>
+      <a href="order.html">Order History</a>
       <a href="order-management.html">Order Management</a>
       <a href="operations.html">Operations</a>
     </nav>
   </div>
 </header>
 
+<!-- ================= MAIN ================= -->
 <main>
   <h1>Your Shopping Cart</h1>
 
-  <div class="cart-container">
+  <div class="cart-box">
     <table id="cartTable">
       <thead>
         <tr>
@@ -199,39 +206,50 @@
       <tbody id="cartBody"></tbody>
     </table>
 
-    <p id="emptyMsg" class="empty" style="display:none;">Your cart is empty.</p>
-    <div id="totalRow" class="total-row"></div>
+    <p id="emptyMsg" class="empty" style="display:none;">
+      Your cart is currently empty.
+    </p>
+
+    <div id="totalRow" class="total"></div>
   </div>
 
   <div class="actions">
     <button class="secondary" onclick="continueShopping()">Continue Shopping</button>
-    <button class="primary" onclick="checkout()">Proceed to Checkout</button>
+    <button class="primary" onclick="checkout()">Place Order</button>
   </div>
 </main>
 
+<!-- ================= FOOTER ================= -->
 <footer>
-  © 2025 Oak & Linen Furniture · Powered by Firebase & GitHub Pages
+  © 2025 Oak & Linen Furniture. All rights reserved.
 </footer>
 
 <!-- ================= CART LOGIC ================= -->
 <script>
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((sum, i) => sum + i.qty, 0);
+    document.getElementById("cartCount").innerText = count ? `(${count})` : "";
+  }
+
   function renderCart() {
-    const cartBody = document.getElementById("cartBody");
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const body = document.getElementById("cartBody");
     const totalRow = document.getElementById("totalRow");
     const emptyMsg = document.getElementById("emptyMsg");
-    const cartTable = document.getElementById("cartTable");
+    const table = document.getElementById("cartTable");
 
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    cartBody.innerHTML = "";
-    totalRow.innerText = "";
+    body.innerHTML = "";
+    totalRow.innerHTML = "";
 
     if (cart.length === 0) {
-      cartTable.style.display = "none";
+      table.style.display = "none";
       emptyMsg.style.display = "block";
+      updateCartCount();
       return;
     }
 
-    cartTable.style.display = "table";
+    table.style.display = "table";
     emptyMsg.style.display = "none";
 
     let total = 0;
@@ -240,13 +258,13 @@
       const subtotal = item.price * item.qty;
       total += subtotal;
 
-      cartBody.innerHTML += `
+      body.innerHTML += `
         <tr>
           <td>${item.product}</td>
           <td>€${item.price}</td>
           <td>${item.qty}</td>
           <td>€${subtotal}</td>
-          <td class="controls">
+          <td class="qty-controls">
             <button onclick="decreaseQty(${index})">−</button>
             <button onclick="removeItem(${index})">❌</button>
           </td>
@@ -255,16 +273,13 @@
     });
 
     totalRow.innerText = `Order Total: €${total}`;
+    updateCartCount();
   }
 
   function decreaseQty(index) {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    cart[index].qty -= 1;
-
-    if (cart[index].qty <= 0) {
-      cart.splice(index, 1);
-    }
-
+    cart[index].qty--;
+    if (cart[index].qty <= 0) cart.splice(index, 1);
     localStorage.setItem("cart", JSON.stringify(cart));
     renderCart();
   }
