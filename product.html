@@ -18,7 +18,6 @@
       appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
     };
 
-    // Initialise Firebase (no DB calls on this page yet)
     initializeApp(firebaseConfig);
   </script>
 
@@ -28,7 +27,6 @@
     body { background-color: #EFE7E1; color: #2B2B2B; min-height: 100vh; display: flex; flex-direction: column; }
     a { text-decoration: none; color: inherit; }
 
-    /* HEADER (UNCHANGED LAYOUT) */
     header {
       background-color: #ffffff;
       border-bottom: 4px solid #3E2723;
@@ -67,11 +65,19 @@
     nav a {
       margin-left: 24px;
       font-weight: 600;
+      position: relative;
     }
 
-    nav a:hover { color: #2E5E4E; }
+    /* Cart count badge */
+    #cartCount {
+      background: #2E5E4E;
+      color: #fff;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 6px;
+    }
 
-    /* MAIN */
     main {
       flex: 1;
       max-width: 1200px;
@@ -91,7 +97,6 @@
       line-height: 1.6;
     }
 
-    /* PRODUCTS */
     .product-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -137,7 +142,14 @@
       margin-bottom: 18px;
     }
 
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
     button {
+      flex: 1;
       background-color: #2E5E4E;
       color: #ffffff;
       border: none;
@@ -145,12 +157,32 @@
       font-weight: bold;
       border-radius: 6px;
       cursor: pointer;
-      margin-top: auto;
     }
 
-    button:hover { background-color: #244C3F; }
+    .like-btn {
+      background-color: #ddd;
+      color: #333;
+      flex: 0.4;
+    }
 
-    /* FOOTER */
+    .like-btn.liked {
+      background-color: #ffcccc;
+      color: #900;
+    }
+
+    /* Feedback */
+    #cartFeedback {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #3E2723;
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 8px;
+      display: none;
+      font-weight: 600;
+    }
+
     footer {
       background-color: #3E2723;
       color: #EFE7E1;
@@ -173,10 +205,11 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
+      <a href="cart.html">Cart<span id="cartCount"></span></a>
       <a href="order.html">Place Order</a>
+      <a href="order.html">Order History</a>
       <a href="order-management.html">Order Management</a>
       <a href="operations.html">Operations</a>
-    </nav>
   </div>
 </header>
 
@@ -190,57 +223,102 @@
 
   <div class="product-grid">
 
-    <!-- OAK DINING TABLE -->
+    <!-- PRODUCT TEMPLATE -->
     <div class="product-card">
-      <img src="https://i.postimg.cc/BZ5nC9Lb/Gemini-Generated-Image-rw8qtirw8qtirw8q.png" alt="Oak Dining Table">
+      <img src="https://i.postimg.cc/BZ5nC9Lb/Gemini-Generated-Image-rw8qtirw8qtirw8q.png">
       <div class="product-info">
         <h3>Oak Dining Table</h3>
         <div class="price">€1,200</div>
-        <p>Solid oak dining table with a natural finish, offering durability and timeless design.</p>
-        <button onclick="addToCart('Oak Dining Table', 1200)">Add to Cart</button>
+        <p>Solid oak dining table with a natural finish.</p>
+        <div class="actions">
+          <button onclick="addToCart('Oak Dining Table', 1200)">Add to Cart</button>
+          <button class="like-btn" onclick="toggleLike(this)">❤️</button>
+        </div>
       </div>
     </div>
 
-    <!-- LINEN SOFA -->
     <div class="product-card">
-      <img src="https://i.postimg.cc/wx5jk8yd/Gemini-Generated-Image-1cjr8o1cjr8o1cjr.png" alt="Linen Sofa">
+      <img src="https://i.postimg.cc/wx5jk8yd/Gemini-Generated-Image-1cjr8o1cjr8o1cjr.png">
       <div class="product-info">
         <h3>Linen Sofa</h3>
         <div class="price">€1,800</div>
-        <p>Comfortable three-seater sofa upholstered in premium linen fabric.</p>
-        <button onclick="addToCart('Linen Sofa', 1800)">Add to Cart</button>
+        <p>Comfortable three-seater sofa upholstered in linen.</p>
+        <div class="actions">
+          <button onclick="addToCart('Linen Sofa', 1800)">Add to Cart</button>
+          <button class="like-btn" onclick="toggleLike(this)">❤️</button>
+        </div>
       </div>
     </div>
 
-    <!-- WOODEN BED FRAME -->
     <div class="product-card">
-      <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?auto=format&fit=crop&w=900&q=80" alt="Wooden Bed Frame">
+      <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed">
       <div class="product-info">
         <h3>Wooden Bed Frame</h3>
         <div class="price">€1,500</div>
-        <p>Handcrafted wooden bed frame designed for strength, comfort, and elegant style.</p>
-        <button onclick="addToCart('Wooden Bed Frame', 1500)">Add to Cart</button>
+        <p>Handcrafted wooden bed frame designed for strength.</p>
+        <div class="actions">
+          <button onclick="addToCart('Wooden Bed Frame', 1500)">Add to Cart</button>
+          <button class="like-btn" onclick="toggleLike(this)">❤️</button>
+        </div>
       </div>
     </div>
 
-    <!-- OAK OFFICE DESK -->
     <div class="product-card">
-      <img src="https://i.postimg.cc/CLzLpZrZ/Gemini-Generated-Image-t89w86t89w86t89w.png" alt="Oak Office Desk">
+      <img src="https://i.postimg.cc/CLzLpZrZ/Gemini-Generated-Image-t89w86t89w86t89w.png">
       <div class="product-info">
         <h3>Oak Office Desk</h3>
         <div class="price">€950</div>
-        <p>Minimalist oak office desk ideal for productive home and professional workspaces.</p>
-        <button onclick="addToCart('Oak Office Desk', 950)">Add to Cart</button>
+        <p>Minimalist oak office desk for modern workspaces.</p>
+        <div class="actions">
+          <button onclick="addToCart('Oak Office Desk', 950)">Add to Cart</button>
+          <button class="like-btn" onclick="toggleLike(this)">❤️</button>
+        </div>
       </div>
     </div>
 
   </div>
 </main>
 
+<div id="cartFeedback"></div>
+
 <!-- ================= FOOTER ================= -->
 <footer>
-  © 2025 Oak & Linen Furniture · Powered by Firebase & GitHub Pages
+  © 2025 Oak & Linen Furniture. All rights reserved.
 </footer>
+
+<!-- ================= CART + LIKE LOGIC ================= -->
+<script>
+  function addToCart(product, price) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const item = cart.find(i => i.product === product);
+    if (item) item.qty++;
+    else cart.push({ product, price, qty: 1 });
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    showFeedback(product);
+  }
+
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((sum, i) => sum + i.qty, 0);
+    document.getElementById("cartCount").innerText = count ? `(${count})` : "";
+  }
+
+  function showFeedback(product) {
+    const msg = document.getElementById("cartFeedback");
+    msg.innerText = `${product} added to cart`;
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 2000);
+  }
+
+  function toggleLike(btn) {
+    btn.classList.toggle("liked");
+  }
+
+  updateCartCount();
+</script>
 
 </body>
 </html>
