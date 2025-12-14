@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Place an Order – Oak & Linen Furniture</title>
+  <title>Place Order – Oak & Linen Furniture</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ================= FIREBASE ================= -->
+  <!-- ================= FIREBASE INIT ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import {
@@ -15,64 +15,66 @@
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    /* 🔴 USE SAME CONFIG IN ALL FILES */
     const firebaseConfig = {
-       apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
-       authDomain: "oak-n-linen-project.firebaseapp.com",
-       projectId: "oak-n-linen-project",
-       storageBucket: "oak-n-linen-project.firebasestorage.app",
-       messagingSenderId: "783016997772",
-       appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
+      apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
+      authDomain: "oak-n-linen-project.firebaseapp.com",
+      projectId: "oak-n-linen-project",
+      storageBucket: "oak-n-linen-project.firebasestorage.app",
+      messagingSenderId: "783016997772",
+      appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const form = document.getElementById("orderForm");
-      const message = document.getElementById("formMessage");
+    // 🔔 Expose function globally so button can call it
+    window.placeOrder = async function () {
+      const name = document.getElementById("customerName").value.trim();
+      const email = document.getElementById("customerEmail").value.trim();
+      const phone = document.getElementById("customerPhone").value.trim();
+      const address = document.getElementById("deliveryAddress").value.trim();
 
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-        const customerName = document.getElementById("customerName").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const product = document.getElementById("product").value.trim();
-        const quantity = parseInt(document.getElementById("quantity").value);
-        const address = document.getElementById("address").value.trim();
-        const notes = document.getElementById("notes").value.trim();
+      if (!name || !email || !phone || !address) {
+        alert("Please complete all customer details.");
+        return;
+      }
 
-        if (!customerName || !email || !product || !address || quantity < 1) {
-          message.textContent = "Please complete all required fields, including delivery address.";
-          message.className = "message error";
-          return;
-        }
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+      }
 
-        try {
-          await addDoc(collection(db, "orders"), {
-            customerName,
-            email,
-            product,
-            quantity,
-            address,
-            notes,
-            status: "New",
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
-          });
+      const totalAmount = cart.reduce(
+        (sum, item) => sum + item.price * item.qty,
+        0
+      );
 
-          message.textContent =
-            "Order submitted successfully. Your order is now being processed.";
-          message.className = "message success";
-          form.reset();
+      try {
+        await addDoc(collection(db, "orders"), {
+          customerName: name,
+          email,
+          phone,
+          address,
+          items: cart,
+          totalAmount,
+          status: "New",
+          createdAt: serverTimestamp()
+        });
 
-        } catch (err) {
-          console.error(err);
-          message.textContent = "Error submitting order. Please try again.";
-          message.className = "message error";
-        }
-      });
-    });
+        // ✅ Clear cart after successful order
+        localStorage.removeItem("cart");
+
+        alert("Order placed successfully!");
+
+        // Redirect to staff view (or home if you prefer)
+        window.location.href = "order-management.html";
+      } catch (error) {
+        console.error(error);
+        alert("Failed to place order. Please try again.");
+      }
+    };
   </script>
 
   <!-- ================= STYLES ================= -->
@@ -118,50 +120,84 @@
     nav a {
       margin-left: 24px;
       font-weight: 600;
+      position: relative;
+    }
+
+    /* Cart count badge */
+    #cartCount {
+      background: #2E5E4E;
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 6px;
     }
 
     main {
       flex: 1;
       max-width: 1200px;
-      margin: 50px auto;
+      margin: 40px auto;
       padding: 0 36px;
     }
 
     h1 {
       color: #3E2723;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
       font-size: 34px;
     }
 
-    .subtitle {
-      margin-bottom: 35px;
-      max-width: 750px;
-      line-height: 1.6;
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 32px;
     }
 
-    .form-card {
+    .box {
       background-color: #ffffff;
-      padding: 36px;
       border-radius: 14px;
-      max-width: 750px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
-      border-top: 6px solid #2E5E4E;
+      padding: 26px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
     }
 
-    .form-group {
-      margin-bottom: 22px;
+    h2 {
+      margin-bottom: 16px;
+      color: #3E2723;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    th {
+      background-color: #3E2723;
+      color: #ffffff;
+    }
+
+    .total {
+      text-align: right;
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
     }
 
     label {
-      display: block;
       font-weight: 600;
-      margin-bottom: 6px;
-      color: #3E2723;
+      display: block;
+      margin-top: 14px;
     }
 
     input, textarea {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
+      margin-top: 6px;
       border-radius: 6px;
       border: 1px solid #ccc;
     }
@@ -171,24 +207,27 @@
       min-height: 80px;
     }
 
-    button {
+    .place-order-btn {
+      margin-top: 24px;
+      width: 100%;
       background-color: #2E5E4E;
       color: #ffffff;
       border: none;
-      padding: 14px 30px;
+      padding: 14px;
       font-size: 16px;
       font-weight: bold;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
     }
 
-    .message {
-      margin-top: 18px;
-      font-weight: 600;
+    .place-order-btn:hover {
+      background-color: #244C3F;
     }
 
-    .error { color: #B00020; }
-    .success { color: #2E7D32; }
+    .empty {
+      font-style: italic;
+      color: #777;
+    }
 
     footer {
       background-color: #3E2723;
@@ -196,6 +235,12 @@
       padding: 30px;
       text-align: center;
       font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -211,65 +256,111 @@
     </a>
     <nav>
       <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart<span id="cartCount"></span></a>
       <a href="order.html">Place Order</a>
+      <a href="order.html">Order History</a>
       <a href="order-management.html">Order Management</a>
       <a href="operations.html">Operations</a>
-    </nav>
   </div>
 </header>
 
 <!-- ================= MAIN ================= -->
 <main>
-  <h1>Place an Order</h1>
-  <p class="subtitle">
-    Submit your furniture order below. Delivery details are required to ensure
-    accurate dispatch and tracking.
-  </p>
+  <h1>Checkout & Place Order</h1>
 
-  <div class="form-card">
-    <form id="orderForm">
+  <div class="checkout-grid">
 
-      <div class="form-group">
-        <label>Customer Name *</label>
-        <input id="customerName" required />
-      </div>
+    <!-- ORDER SUMMARY -->
+    <div class="box">
+      <h2>Order Summary</h2>
 
-      <div class="form-group">
-        <label>Email Address *</label>
-        <input id="email" type="email" required />
-      </div>
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
 
-      <div class="form-group">
-        <label>Product *</label>
-        <input id="product" placeholder="e.g. Oak Dining Table" required />
-      </div>
+      <p id="emptyCart" class="empty" style="display:none;">
+        Your cart is empty.
+      </p>
 
-      <div class="form-group">
-        <label>Quantity *</label>
-        <input id="quantity" type="number" min="1" value="1" required />
-      </div>
+      <div id="orderTotal" class="total"></div>
+    </div>
 
-      <div class="form-group">
-        <label>Delivery Address *</label>
-        <textarea id="address" placeholder="Street, City, Postcode" required></textarea>
-      </div>
+    <!-- CUSTOMER DETAILS -->
+    <div class="box">
+      <h2>Customer Details</h2>
 
-      <div class="form-group">
-        <label>Additional Notes (optional)</label>
-        <textarea id="notes"></textarea>
-      </div>
+      <label for="customerName">Full Name</label>
+      <input id="customerName" placeholder="e.g. Emma O’Brien" />
 
-      <button type="submit">Submit Order</button>
-      <div id="formMessage" class="message"></div>
+      <label for="customerEmail">Email</label>
+      <input id="customerEmail" type="email" placeholder="emma@email.com" />
 
-    </form>
+      <label for="customerPhone">Phone</label>
+      <input id="customerPhone" placeholder="+353 87 123 4567" />
+
+      <label for="deliveryAddress">Delivery Address</label>
+      <textarea id="deliveryAddress" placeholder="Street, City, Eircode"></textarea>
+
+      <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+    </div>
+
   </div>
 </main>
 
 <!-- ================= FOOTER ================= -->
 <footer>
-  © 2025 Oak & Linen Furniture · Powered by Firebase & GitHub Pages
+  © 2025 Oak & Linen Furniture. All rights reserved.
 </footer>
+
+<!-- ================= CART COUNT + SUMMARY LOGIC ================= -->
+<script>
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((sum, item) => sum + item.qty, 0);
+    const badge = document.getElementById("cartCount");
+    if (badge) badge.innerText = count > 0 ? `(${count})` : "";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateCartCount();
+
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const body = document.getElementById("summaryBody");
+    const totalDiv = document.getElementById("orderTotal");
+    const emptyMsg = document.getElementById("emptyCart");
+
+    if (cart.length === 0) {
+      document.getElementById("summaryTable").style.display = "none";
+      emptyMsg.style.display = "block";
+      return;
+    }
+
+    let total = 0;
+
+    cart.forEach(item => {
+      const subtotal = item.price * item.qty;
+      total += subtotal;
+
+      body.innerHTML += `
+        <tr>
+          <td>${item.product}</td>
+          <td>${item.qty}</td>
+          <td>€${subtotal}</td>
+        </tr>
+      `;
+    });
+
+    totalDiv.innerText = `Order Total: €${total}`;
+  });
+</script>
 
 </body>
 </html>
