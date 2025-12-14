@@ -2,98 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Order Management – Oak & Linen Furniture</title>
+  <title>Place Order – Oak & Linen Furniture</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ================= FIREBASE ================= -->
+  <!-- ================= FIREBASE INIT ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import {
       getFirestore,
       collection,
-      onSnapshot,
-      doc,
-      updateDoc,
+      addDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    /* 🔴 USE SAME CONFIG AS ALL OTHER PAGES */
     const firebaseConfig = {
-       apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
-       authDomain: "oak-n-linen-project.firebaseapp.com",
-       projectId: "oak-n-linen-project",
-       storageBucket: "oak-n-linen-project.firebasestorage.app",
-       messagingSenderId: "783016997772",
-       appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
+      apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
+      authDomain: "oak-n-linen-project.firebaseapp.com",
+      projectId: "oak-n-linen-project",
+      storageBucket: "oak-n-linen-project.firebasestorage.app",
+      messagingSenderId: "783016997772",
+      appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const tableBody = document.getElementById("ordersTable");
+    // 🔔 Expose function globally so button can call it
+    window.placeOrder = async function () {
+      const name = document.getElementById("customerName").value.trim();
+      const email = document.getElementById("customerEmail").value.trim();
+      const phone = document.getElementById("customerPhone").value.trim();
+      const address = document.getElementById("deliveryAddress").value.trim();
 
-      // ================= REAL-TIME LISTENER =================
-      onSnapshot(collection(db, "orders"), (snapshot) => {
-        tableBody.innerHTML = "";
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-        snapshot.forEach((docSnap) => {
-          const order = docSnap.data();
-
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td>${docSnap.id.slice(0, 6)}</td>
-            <td>${order.customerName}</td>
-            <td>${order.product}</td>
-            <td>${order.quantity}</td>
-            <td class="address">
-              ${order.address ? order.address.replace(/\n/g, "<br>") : "<em>Not provided</em>"}
-            </td>
-            <td>
-              <select data-id="${docSnap.id}">
-                <option ${order.status === "New" ? "selected" : ""}>New</option>
-                <option ${order.status === "Preparing" ? "selected" : ""}>Preparing</option>
-                <option ${order.status === "Ready" ? "selected" : ""}>Ready</option>
-                <option ${order.status === "Out for Delivery" ? "selected" : ""}>Out for Delivery</option>
-                <option ${order.status === "Delivered" ? "selected" : ""}>Delivered</option>
-              </select>
-            </td>
-            <td>
-              <textarea data-id="${docSnap.id}">${order.notes || ""}</textarea>
-            </td>
-            <td>${order.updatedAt?.toDate().toLocaleString() || "—"}</td>
-          `;
-          tableBody.appendChild(row);
-        });
-
-        attachUpdateHandlers();
-      });
-
-      // ================= UPDATE HANDLERS =================
-      function attachUpdateHandlers() {
-
-        document.querySelectorAll("select").forEach(select => {
-          select.addEventListener("change", async (e) => {
-            const id = e.target.dataset.id;
-            await updateDoc(doc(db, "orders", id), {
-              status: e.target.value,
-              updatedAt: serverTimestamp()
-            });
-          });
-        });
-
-        document.querySelectorAll("textarea").forEach(textarea => {
-          textarea.addEventListener("blur", async (e) => {
-            const id = e.target.dataset.id;
-            await updateDoc(doc(db, "orders", id), {
-              notes: e.target.value,
-              updatedAt: serverTimestamp()
-            });
-          });
-        });
-
+      if (!name || !email || !phone || !address) {
+        alert("Please complete all customer details.");
+        return;
       }
-    });
+
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+      }
+
+      const totalAmount = cart.reduce(
+        (sum, item) => sum + item.price * item.qty,
+        0
+      );
+
+      try {
+        await addDoc(collection(db, "orders"), {
+          customerName: name,
+          email,
+          phone,
+          address,
+          items: cart,
+          totalAmount,
+          status: "New",
+          createdAt: serverTimestamp()
+        });
+
+        // ✅ Clear cart after successful order
+        localStorage.removeItem("cart");
+
+        alert("Order placed successfully!");
+
+        // Redirect to staff view (or home if you prefer)
+        window.location.href = "order-management.html";
+      } catch (error) {
+        console.error(error);
+        alert("Failed to place order. Please try again.");
+      }
+    };
   </script>
 
   <!-- ================= STYLES ================= -->
@@ -139,82 +120,113 @@
     nav a {
       margin-left: 24px;
       font-weight: 600;
+      position: relative;
+    }
+
+    /* Cart count badge */
+    #cartCount {
+      background: #2E5E4E;
+      color: #ffffff;
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 12px;
+      margin-left: 6px;
     }
 
     main {
       flex: 1;
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 40px auto;
       padding: 0 36px;
     }
 
     h1 {
       color: #3E2723;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       font-size: 34px;
     }
 
-    .subtitle {
-      margin-bottom: 25px;
-      max-width: 1000px;
-      line-height: 1.6;
+    .checkout-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 32px;
     }
 
-    .notice {
-      background-color: #FFF3CD;
-      color: #856404;
-      border-left: 6px solid #FFCC00;
-      padding: 14px 18px;
-      border-radius: 6px;
-      margin-bottom: 25px;
-      font-weight: 600;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
+    .box {
       background-color: #ffffff;
       border-radius: 14px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+      padding: 26px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      color: #3E2723;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1200px;
+      margin-bottom: 10px;
     }
 
     th, td {
-      padding: 14px 16px;
+      padding: 12px;
       border-bottom: 1px solid #eee;
-      vertical-align: top;
+      text-align: left;
     }
 
     th {
       background-color: #3E2723;
       color: #ffffff;
-      text-align: left;
     }
 
-    tr:hover {
-      background-color: #F8F5F2;
+    .total {
+      text-align: right;
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
     }
 
-    .address {
-      max-width: 220px;
-      font-size: 14px;
-      line-height: 1.4;
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 14px;
     }
 
-    select, textarea {
+    input, textarea {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
+      margin-top: 6px;
       border-radius: 6px;
       border: 1px solid #ccc;
     }
 
     textarea {
       resize: vertical;
-      min-height: 60px;
+      min-height: 80px;
+    }
+
+    .place-order-btn {
+      margin-top: 24px;
+      width: 100%;
+      background-color: #2E5E4E;
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .place-order-btn:hover {
+      background-color: #244C3F;
+    }
+
+    .empty {
+      font-style: italic;
+      color: #777;
     }
 
     footer {
@@ -223,6 +235,12 @@
       padding: 30px;
       text-align: center;
       font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .checkout-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -238,48 +256,111 @@
     </a>
     <nav>
       <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart<span id="cartCount"></span></a>
       <a href="order.html">Place Order</a>
+      <a href="order.html">Order History</a>
       <a href="order-management.html">Order Management</a>
       <a href="operations.html">Operations</a>
-    </nav>
   </div>
 </header>
 
 <!-- ================= MAIN ================= -->
 <main>
-  <h1>Order Management</h1>
-  <p class="subtitle">
-    Track furniture orders from placement through production, delivery, and completion.
-    Delivery address and status updates are synchronised in real time.
-  </p>
+  <h1>Checkout & Place Order</h1>
 
-  <div class="notice">
-    ⚠ Staff access only. Authentication will be enforced in production.
-  </div>
+  <div class="checkout-grid">
 
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer</th>
-          <th>Product</th>
-          <th>Qty</th>
-          <th>Delivery Address</th>
-          <th>Status</th>
-          <th>Internal Notes</th>
-          <th>Last Updated</th>
-        </tr>
-      </thead>
-      <tbody id="ordersTable"></tbody>
-    </table>
+    <!-- ORDER SUMMARY -->
+    <div class="box">
+      <h2>Order Summary</h2>
+
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
+
+      <p id="emptyCart" class="empty" style="display:none;">
+        Your cart is empty.
+      </p>
+
+      <div id="orderTotal" class="total"></div>
+    </div>
+
+    <!-- CUSTOMER DETAILS -->
+    <div class="box">
+      <h2>Customer Details</h2>
+
+      <label for="customerName">Full Name</label>
+      <input id="customerName" placeholder="e.g. Emma O’Brien" />
+
+      <label for="customerEmail">Email</label>
+      <input id="customerEmail" type="email" placeholder="emma@email.com" />
+
+      <label for="customerPhone">Phone</label>
+      <input id="customerPhone" placeholder="+353 87 123 4567" />
+
+      <label for="deliveryAddress">Delivery Address</label>
+      <textarea id="deliveryAddress" placeholder="Street, City, Eircode"></textarea>
+
+      <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+    </div>
+
   </div>
 </main>
 
 <!-- ================= FOOTER ================= -->
 <footer>
-  © 2025 Oak & Linen Furniture · Powered by Firebase & GitHub Pages
+  © 2025 Oak & Linen Furniture. All rights reserved.
 </footer>
+
+<!-- ================= CART COUNT + SUMMARY LOGIC ================= -->
+<script>
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((sum, item) => sum + item.qty, 0);
+    const badge = document.getElementById("cartCount");
+    if (badge) badge.innerText = count > 0 ? `(${count})` : "";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateCartCount();
+
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const body = document.getElementById("summaryBody");
+    const totalDiv = document.getElementById("orderTotal");
+    const emptyMsg = document.getElementById("emptyCart");
+
+    if (cart.length === 0) {
+      document.getElementById("summaryTable").style.display = "none";
+      emptyMsg.style.display = "block";
+      return;
+    }
+
+    let total = 0;
+
+    cart.forEach(item => {
+      const subtotal = item.price * item.qty;
+      total += subtotal;
+
+      body.innerHTML += `
+        <tr>
+          <td>${item.product}</td>
+          <td>${item.qty}</td>
+          <td>€${subtotal}</td>
+        </tr>
+      `;
+    });
+
+    totalDiv.innerText = `Order Total: €${total}`;
+  });
+</script>
 
 </body>
 </html>
