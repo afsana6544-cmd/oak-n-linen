@@ -2,16 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Place Order – Oak & Linen Furniture</title>
+  <title>Staff Portal – Oak & Linen</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- ================= FIREBASE INIT ================= -->
+  <!-- ================= FIREBASE ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import {
+      getAuth,
+      onAuthStateChanged,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      sendPasswordResetEmail,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import {
       getFirestore,
       collection,
-      addDoc,
+      onSnapshot,
+      doc,
+      updateDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -25,230 +35,261 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // 🔔 Expose function globally so button can call it
-    window.placeOrder = async function () {
-      const name = document.getElementById("customerName").value.trim();
-      const email = document.getElementById("customerEmail").value.trim();
-      const phone = document.getElementById("customerPhone").value.trim();
-      const address = document.getElementById("deliveryAddress").value.trim();
+    // ================= AUTH STATE =================
+    onAuthStateChanged(auth, user => {
+      document.getElementById("loginView").style.display = user ? "none" : "flex";
+      document.getElementById("dashboardView").style.display = user ? "block" : "none";
 
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      document.getElementById("loginHeader").style.display = user ? "none" : "block";
+      document.getElementById("loginFooter").style.display = user ? "none" : "block";
 
-      if (!name || !email || !phone || !address) {
-        alert("Please complete all customer details.");
-        return;
+      if (user) {
+        document.getElementById("staffEmail").innerText = user.email;
+        loadOrders();
       }
+    });
 
-      if (cart.length === 0) {
-        alert("Your cart is empty.");
-        return;
-      }
-
-      const totalAmount = cart.reduce(
-        (sum, item) => sum + item.price * item.qty,
-        0
-      );
-
+    // ================= AUTH ACTIONS =================
+    window.login = async () => {
       try {
-        await addDoc(collection(db, "orders"), {
-          customerName: name,
-          email,
-          phone,
-          address,
-          items: cart,
-          totalAmount,
-          status: "New",
-          createdAt: serverTimestamp()
-        });
-
-        // ✅ Clear cart after successful order
-        localStorage.removeItem("cart");
-
-        alert("Order placed successfully!");
-
-        // Redirect to staff view (or home if you prefer)
-        window.location.href = "order-management.html";
-      } catch (error) {
-        console.error(error);
-        alert("Failed to place order. Please try again.");
+        await signInWithEmailAndPassword(auth, email.value, password.value);
+      } catch (e) {
+        alert(e.message);
       }
     };
+
+    window.registerStaff = async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, email.value, password.value);
+        alert("Staff account created. You can now log in.");
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    window.resetPassword = async () => {
+      try {
+        await sendPasswordResetEmail(auth, email.value);
+        alert("Password reset email sent.");
+      } catch (e) {
+        alert(e.message);
+      }
+    };
+
+    window.logout = async () => {
+      await signOut(auth);
+    };
+
+    // ================= ORDER MANAGEMENT =================
+    function loadOrders() {
+      const tbody = document.getElementById("ordersTable");
+
+      onSnapshot(collection(db, "orders"), snap => {
+        tbody.innerHTML = "";
+
+        let total = 0, newO = 0, prep = 0, delivery = 0, issues = 0;
+
+        snap.forEach(d => {
+          const o = d.data();
+
+          total++;
+          if (o.status === "New") newO++;
+          if (o.status === "Preparing") prep++;
+          if (o.status === "Out for Delivery") delivery++;
+          if (o.resolution) issues++;
+
+          tbody.innerHTML += `
+            <tr>
+              <td>${d.id.slice(0,6)}</td>
+              <td>${o.customerName}<br><small>${o.email}</small></td>
+              <td>${o.items?.map(i => `${i.product} × ${i.qty}`).join("<br>") || "—"}</td>
+              <td>€${o.totalAmount}</td>
+              <td>
+                <select onchange="updateStatus('${d.id}', this.value)">
+                  ${["New","Preparing","Out for Delivery","Delivered","Closed"]
+                    .map(s => `<option ${o.status===s?"selected":""}>${s}</option>`).join("")}
+                </select>
+              </td>
+              <td>
+                <select onchange="updateResolution('${d.id}', this.value)">
+                  <option value="">None</option>
+                  <option ${o.resolution==="Return"?"selected":""}>Return</option>
+                  <option ${o.resolution==="Refund"?"selected":""}>Refund</option>
+                  <option ${o.resolution==="Replacement"?"selected":""}>Replacement</option>
+                </select>
+              </td>
+              <td>
+                <textarea onblur="updateNotes('${d.id}', this.value)">${o.notes||""}</textarea>
+              </td>
+            </tr>
+          `;
+        });
+
+        totalOrders.innerText = total;
+        newOrders.innerText = newO;
+        preparingOrders.innerText = prep;
+        deliveryOrders.innerText = delivery;
+        issueOrders.innerText = issues;
+      });
+    }
+
+    window.updateStatus = (id,val) =>
+      updateDoc(doc(db,"orders",id),{ status:val, updatedAt:serverTimestamp() });
+
+    window.updateResolution = (id,val) =>
+      updateDoc(doc(db,"orders",id),{ resolution:val, updatedAt:serverTimestamp() });
+
+    window.updateNotes = (id,val) =>
+      updateDoc(doc(db,"orders",id),{ notes:val, updatedAt:serverTimestamp() });
   </script>
 
   <!-- ================= STYLES ================= -->
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
-    body { background-color: #EFE7E1; color: #2B2B2B; min-height: 100vh; display: flex; flex-direction: column; }
-    a { text-decoration: none; color: inherit; }
+    * { box-sizing:border-box; font-family:"Segoe UI",Arial; }
+    body { background:#EFE7E1; margin:0; color:#2B2B2B; }
 
     header {
-      background-color: #ffffff;
-      border-bottom: 4px solid #3E2723;
-      padding: 18px 36px;
+      background:#fff;
+      border-bottom:4px solid #3E2723;
+      padding:18px 36px;
     }
 
     .header-container {
-      max-width: 1200px;
-      margin: auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      max-width:1200px;
+      margin:auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
     }
 
     .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: bold;
-      font-size: 22px;
-      color: #3E2723;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:22px;
+      font-weight:bold;
+      color:#3E2723;
+      text-decoration:none;
     }
 
     .logo-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 6px;
-      background-color: #3E2723;
-      color: #C6A75E;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width:40px;
+      height:40px;
+      background:#3E2723;
+      color:#C6A75E;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:6px;
+    }
+
+    nav {
+      display:flex;
+      gap:24px;
+      font-weight:600;
     }
 
     nav a {
-      margin-left: 24px;
-      font-weight: 600;
-      position: relative;
+      text-decoration:none;
+      color:#2B2B2B;
     }
 
-    /* Cart count badge */
-    #cartCount {
-      background: #2E5E4E;
-      color: #ffffff;
-      border-radius: 12px;
-      padding: 2px 8px;
-      font-size: 12px;
-      margin-left: 6px;
+    #loginView {
+      min-height: calc(100vh - 140px);
+      display:flex;
+      justify-content:center;
+      align-items:center;
     }
 
-    main {
-      flex: 1;
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 0 36px;
+    .login-card {
+      background:#fff;
+      padding:40px;
+      width:380px;
+      border-radius:18px;
+      box-shadow:0 12px 30px rgba(0,0,0,0.15);
+      text-align:center;
     }
 
-    h1 {
-      color: #3E2723;
-      margin-bottom: 20px;
-      font-size: 34px;
+    input {
+      width:100%;
+      padding:12px;
+      margin-bottom:14px;
+      border-radius:8px;
+      border:1px solid #ccc;
     }
 
-    .checkout-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 1fr;
-      gap: 32px;
+    button {
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      background:#2E5E4E;
+      color:#fff;
+      cursor:pointer;
     }
 
-    .box {
-      background-color: #ffffff;
-      border-radius: 14px;
-      padding: 26px;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.08);
-    }
-
-    h2 {
-      margin-bottom: 16px;
-      color: #3E2723;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-    }
-
-    th {
-      background-color: #3E2723;
-      color: #ffffff;
-    }
-
-    .total {
-      text-align: right;
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    label {
-      font-weight: 600;
-      display: block;
-      margin-top: 14px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .place-order-btn {
-      margin-top: 24px;
-      width: 100%;
-      background-color: #2E5E4E;
-      color: #ffffff;
-      border: none;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .place-order-btn:hover {
-      background-color: #244C3F;
-    }
-
-    .empty {
-      font-style: italic;
-      color: #777;
+    .links a {
+      display:block;
+      margin-top:8px;
+      font-size:14px;
+      color:#2E5E4E;
+      cursor:pointer;
     }
 
     footer {
-      background-color: #3E2723;
-      color: #EFE7E1;
-      padding: 30px;
-      text-align: center;
-      font-size: 14px;
+      background:#3E2723;
+      color:#EFE7E1;
+      padding:30px;
+      text-align:center;
+      font-size:14px;
     }
 
-    @media (max-width: 900px) {
-      .checkout-grid {
-        grid-template-columns: 1fr;
-      }
+    main {
+      max-width:1400px;
+      margin:40px auto;
+      padding:0 36px;
     }
+
+    .overview {
+      background:#fff;
+      padding:20px;
+      border-radius:14px;
+      box-shadow:0 8px 22px rgba(0,0,0,0.08);
+      margin-bottom:30px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:16px;
+      text-align:center;
+    }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 10px 28px rgba(0,0,0,0.08);
+    }
+
+    th, td {
+      padding:14px;
+      border-bottom:1px solid #eee;
+    }
+
+    th { background:#3E2723; color:#fff; }
+    small { color:#666; }
   </style>
 </head>
 
 <body>
 
-<!-- ================= HEADER ================= -->
-<header>
+<!-- LOGIN HEADER -->
+<header id="loginHeader">
   <div class="header-container">
     <a href="index.html" class="logo">
       <div class="logo-icon">OL</div>
@@ -256,111 +297,74 @@
     </a>
     <nav>
       <a href="index.html">Home</a>
-      <a href="products.html">Products</a>
-      <a href="cart.html">Cart<span id="cartCount"></span></a>
-      <a href="order.html">Place Order</a>
-      <a href="order.html">Order History</a>
       <a href="order-management.html">Order Management</a>
       <a href="operations.html">Operations</a>
+    </nav>
   </div>
 </header>
 
-<!-- ================= MAIN ================= -->
-<main>
-  <h1>Checkout & Place Order</h1>
+<!-- LOGIN VIEW -->
+<div id="loginView">
+  <div class="login-card">
 
-  <div class="checkout-grid">
+    <input id="email" placeholder="Staff Email">
+    <input id="password" type="password" placeholder="Password">
 
-    <!-- ORDER SUMMARY -->
-    <div class="box">
-      <h2>Order Summary</h2>
-
-      <table id="summaryTable">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Subtotal</th>
-          </tr>
-        </thead>
-        <tbody id="summaryBody"></tbody>
-      </table>
-
-      <p id="emptyCart" class="empty" style="display:none;">
-        Your cart is empty.
-      </p>
-
-      <div id="orderTotal" class="total"></div>
+    <button onclick="login()">Login</button>
+    <div class="links">
+      <a onclick="registerStaff()">Register Staff</a>
+      <a onclick="resetPassword()">Forgot Password?</a>
     </div>
-
-    <!-- CUSTOMER DETAILS -->
-    <div class="box">
-      <h2>Customer Details</h2>
-
-      <label for="customerName">Full Name</label>
-      <input id="customerName" placeholder="e.g. Emma O’Brien" />
-
-      <label for="customerEmail">Email</label>
-      <input id="customerEmail" type="email" placeholder="emma@email.com" />
-
-      <label for="customerPhone">Phone</label>
-      <input id="customerPhone" placeholder="+353 87 123 4567" />
-
-      <label for="deliveryAddress">Delivery Address</label>
-      <textarea id="deliveryAddress" placeholder="Street, City, Eircode"></textarea>
-
-      <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
-    </div>
-
   </div>
-</main>
+</div>
 
-<!-- ================= FOOTER ================= -->
-<footer>
-  © 2025 Oak & Linen Furniture. All rights reserved.
-</footer>
+<!-- DASHBOARD -->
+<div id="dashboardView" style="display:none;">
+  <header>
+    <div class="header-container">
+      <div class="logo">
+        <div class="logo-icon">OL</div>
+        Oak & Linen
+      </div>
+      <nav>
+        <span>Logged in as: <strong id="staffEmail"></strong></span>
+        <a href="#" onclick="logout()">Logout</a>
+      </nav>
+    </div>
+  </header>
 
-<!-- ================= CART COUNT + SUMMARY LOGIC ================= -->
-<script>
-  function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const count = cart.reduce((sum, item) => sum + item.qty, 0);
-    const badge = document.getElementById("cartCount");
-    if (badge) badge.innerText = count > 0 ? `(${count})` : "";
-  }
+  <main>
+    <div class="overview">
+      <div>Total Orders<br><strong id="totalOrders">0</strong></div>
+      <div>New<br><strong id="newOrders">0</strong></div>
+      <div>Preparing<br><strong id="preparingOrders">0</strong></div>
+      <div>Out for Delivery<br><strong id="deliveryOrders">0</strong></div>
+      <div>Issues<br><strong id="issueOrders">0</strong></div>
+    </div>
 
-  document.addEventListener("DOMContentLoaded", () => {
-    updateCartCount();
+    <h1>Order Management (Staff)</h1>
 
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const body = document.getElementById("summaryBody");
-    const totalDiv = document.getElementById("orderTotal");
-    const emptyMsg = document.getElementById("emptyCart");
-
-    if (cart.length === 0) {
-      document.getElementById("summaryTable").style.display = "none";
-      emptyMsg.style.display = "block";
-      return;
-    }
-
-    let total = 0;
-
-    cart.forEach(item => {
-      const subtotal = item.price * item.qty;
-      total += subtotal;
-
-      body.innerHTML += `
+    <table>
+      <thead>
         <tr>
-          <td>${item.product}</td>
-          <td>${item.qty}</td>
-          <td>€${subtotal}</td>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Resolution</th>
+          <th>Notes</th>
         </tr>
-      `;
-    });
+      </thead>
+      <tbody id="ordersTable"></tbody>
+    </table>
+  </main>
+</div>
 
-    totalDiv.innerText = `Order Total: €${total}`;
-  });
-</script>
-
+<!-- LOGIN FOOTER -->
+<footer id="loginFooter">
+  © 2025 Oak & Linen Furniture. All rights reserved.
+<footer>
+  
 </body>
 </html>
