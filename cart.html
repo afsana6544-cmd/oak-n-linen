@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Cart – Oak & Linen Furniture</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ================= FIREBASE CONFIG (SAFE) ================= -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
+      authDomain: "oak-n-linen-project.firebaseapp.com",
+      projectId: "oak-n-linen-project",
+      storageBucket: "oak-n-linen-project.firebasestorage.app",
+      messagingSenderId: "783016997772",
+      appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
+    };
+
+    initializeApp(firebaseConfig);
+  </script>
+
+  <!-- ================= STYLES ================= -->
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Segoe UI", Arial, sans-serif; }
+
+    body {
+      background-color: #EFE7E1;
+      color: #2B2B2B;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 4px solid #3E2723;
+      padding: 18px 36px;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      font-size: 22px;
+      color: #3E2723;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      background-color: #3E2723;
+      color: #C6A75E;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    nav a {
+      margin-left: 24px;
+      font-weight: 600;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 36px;
+    }
+
+    h1 {
+      color: #3E2723;
+      margin-bottom: 25px;
+      font-size: 34px;
+    }
+
+    .cart-container {
+      background-color: #ffffff;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #3E2723;
+      color: #ffffff;
+      text-align: left;
+    }
+
+    .controls button {
+      margin-right: 6px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+
+    .total-row {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    .actions {
+      margin-top: 30px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+    }
+
+    button.primary {
+      background-color: #3E2723;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    button.secondary {
+      background-color: #ddd;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .empty {
+      font-style: italic;
+      color: #777;
+    }
+
+    footer {
+      background-color: #3E2723;
+      color: #EFE7E1;
+      padding: 30px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">OL</div>
+      Oak & Linen
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="order.html">Cart</a>
+      <a href="order.html">Place Order</a>
+      <a href="order-management.html">Order Management</a>
+      <a href="operations.html">Operations</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <h1>Your Shopping Cart</h1>
+
+  <div class="cart-container">
+    <table id="cartTable">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="cartBody"></tbody>
+    </table>
+
+    <p id="emptyMsg" class="empty" style="display:none;">Your cart is empty.</p>
+    <div id="totalRow" class="total-row"></div>
+  </div>
+
+  <div class="actions">
+    <button class="secondary" onclick="continueShopping()">Continue Shopping</button>
+    <button class="primary" onclick="checkout()">Proceed to Checkout</button>
+  </div>
+</main>
+
+<footer>
+  © 2025 Oak & Linen Furniture · Powered by Firebase & GitHub Pages
+</footer>
+
+<!-- ================= CART LOGIC ================= -->
+<script>
+  function renderCart() {
+    const cartBody = document.getElementById("cartBody");
+    const totalRow = document.getElementById("totalRow");
+    const emptyMsg = document.getElementById("emptyMsg");
+    const cartTable = document.getElementById("cartTable");
+
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cartBody.innerHTML = "";
+    totalRow.innerText = "";
+
+    if (cart.length === 0) {
+      cartTable.style.display = "none";
+      emptyMsg.style.display = "block";
+      return;
+    }
+
+    cartTable.style.display = "table";
+    emptyMsg.style.display = "none";
+
+    let total = 0;
+
+    cart.forEach((item, index) => {
+      const subtotal = item.price * item.qty;
+      total += subtotal;
+
+      cartBody.innerHTML += `
+        <tr>
+          <td>${item.product}</td>
+          <td>€${item.price}</td>
+          <td>${item.qty}</td>
+          <td>€${subtotal}</td>
+          <td class="controls">
+            <button onclick="decreaseQty(${index})">−</button>
+            <button onclick="removeItem(${index})">❌</button>
+          </td>
+        </tr>
+      `;
+    });
+
+    totalRow.innerText = `Order Total: €${total}`;
+  }
+
+  function decreaseQty(index) {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart[index].qty -= 1;
+
+    if (cart[index].qty <= 0) {
+      cart.splice(index, 1);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+  }
+
+  function removeItem(index) {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    cart.splice(index, 1);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    renderCart();
+  }
+
+  function checkout() {
+    window.location.href = "order.html";
+  }
+
+  function continueShopping() {
+    window.location.href = "products.html";
+  }
+
+  document.addEventListener("DOMContentLoaded", renderCart);
+</script>
+
+</body>
+</html>
