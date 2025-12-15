@@ -228,14 +228,99 @@
       font-style: italic;
       color: #777;
     }
+  
+  nav a.active {
+  background: #2E5E4E;
+  color: #fff;
+}
 
-    footer {
-      background-color: #3E2723;
-      color: #EFE7E1;
-      padding: 30px;
-      text-align: center;
-      font-size: 14px;
-    }
+nav a.clicked {
+  animation: navBlink 0.4s ease;
+}
+
+
+footer {
+  background:#3E2723;
+  color:#EFE7E1;
+  padding:50px 36px;
+  font-size:14px;
+}
+
+.footer-container {
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:30px;
+  text-align:left;
+}
+
+.footer-section h4 {
+  color:#C6A75E;
+  margin-bottom:14px;
+}
+
+.footer-section a,
+.footer-section p {
+  display:block;
+  color:#EFE7E1;
+  margin-bottom:8px;
+  text-decoration:none;
+}
+
+.footer-section a:hover {
+  text-decoration:underline;
+}
+
+.social a {
+  margin-right:12px;
+}
+
+.footer-bottom {
+  text-align:center;
+  margin-top:30px;
+  color:#D7CFC8;
+  font-size:13px;
+}
+ 
+
+ /* ===== NAV LINKS (GLOBAL STYLE) ===== */
+nav a {
+  margin-left: 22px;
+  font-weight: 600;
+  color: #3E2723;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ACTIVE PAGE */
+nav a.active {
+  background: #2E5E4E;
+  color: #ffffff;
+}
+
+/* CLICK BLINK */
+nav a.clicked {
+  animation: navBlink 0.4s ease;
+}
+
+@keyframes navBlink {
+  0% {
+    background: #2E5E4E;
+    color: #ffffff;
+  }
+  50% {
+    background: #C6A75E;
+    color: #3E2723;
+  }
+  100% {
+    background: #2E5E4E;
+    color: #ffffff;
+  }
+}
+
+
 
     @media (max-width: 900px) {
       .checkout-grid {
@@ -257,11 +342,8 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
-      <a href="cart.html">Cart<span id="cartCount"></span></a>
+      <a href="cart.html">🛒 Cart<span id="cartCount"></span></a>
       <a href="order.html">Place Order</a>
-      <a href="order-history.html">Order History</a>
-      <a href="order-management.html">Order Management</a>
-      <a href="operations.html">Operations</a>
     </nav>
   </div>
 </header>
@@ -316,11 +398,42 @@
   </div>
 </main>
 
-<!-- ================= FOOTER ================= -->
 <footer>
-  © 2025 Oak & Linen Furniture. All rights reserved.
-</footer>
+  <div class="footer-container">
 
+    <div class="footer-section">
+      <h4>Oak & Linen</h4>
+      <p>Crafted furniture. Intelligent operations.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Customer Care</h4>
+      <a href="#">Delivery Information</a>
+      <a href="#">Returns & Refund Policy</a>
+      <a href="#">Warranty & Repairs</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
+      <a href="tel:+35315550199">+353 1 555 0199</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Connect</h4>
+      <div class="social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2025 Oak & Linen Furniture. All rights reserved.
+  </div>
+</footer>
 <!-- ================= CART COUNT + SUMMARY LOGIC ================= -->
 <script>
  function updateCartCount() {
@@ -363,6 +476,30 @@
     totalDiv.innerText = `Order Total: €${total}`;
   });
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const currentPage =
+    location.pathname.split("/").pop() || "index.html";
+
+  document.querySelectorAll("nav a").forEach(link => {
+    const href = link.getAttribute("href");
+
+    // persistent active state
+    if (href === currentPage) {
+      link.classList.add("active");
+    }
+
+    // click blink
+    link.addEventListener("click", () => {
+      link.classList.remove("clicked");
+      void link.offsetWidth; // force reflow
+      link.classList.add("clicked");
+    });
+  });
+});
+</script>
+
 
 </body>
 </html>
