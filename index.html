@@ -293,11 +293,21 @@ footer{
 </footer>
 
 <script>
+function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if(cart.length){
-    document.getElementById("cartCount").innerText =
-      cart.reduce((s,i)=>s+i.qty,0);
+  const count = cart.reduce((sum, item) => sum + item.qty, 0);
+  const badge = document.getElementById("cartCount");
+
+  if (!badge) return;
+
+  if (count > 0) {
+    badge.innerText = count;
+  } else {
+    badge.innerText = "";
   }
+}
+
+document.addEventListener("DOMContentLoaded", updateCartCount);
 </script>
 
 </body>
