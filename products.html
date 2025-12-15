@@ -207,7 +207,7 @@
       <a href="products.html">Products</a>
       <a href="cart.html">Cart<span id="cartCount"></span></a>
       <a href="order.html">Place Order</a>
-      <a href="order-history.html">Order History</a>
+      <a href="order.html">Order History</a>
       <a href="order-management.html">Order Management</a>
       <a href="operations.html">Operations</a>
   </div>
@@ -300,15 +300,11 @@
     showFeedback(product);
   }
 
-function updateCartCount() {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const count = cart.reduce((sum, i) => sum + i.qty, 0);
-
-  const cartCountEl = document.getElementById("cartCount");
-  if (cartCountEl) {
-    cartCountEl.innerText = count ? ` ${count}` : "";
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((sum, i) => sum + i.qty, 0);
+    document.getElementById("cartCount").innerText = count ? `(${count})` : "";
   }
-}
 
   function showFeedback(product) {
     const msg = document.getElementById("cartFeedback");
