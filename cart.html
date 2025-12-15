@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Your Cart – Oak & Linen Furniture</title>
+  <title> Shopping Cart – Oak & Linen Furniture</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- ================= FIREBASE INIT (CONSISTENCY ONLY) ================= -->
@@ -156,6 +156,155 @@
       font-style: italic;
       color: #777;
     }
+  
+    nav a.active {
+    background-color: #2E5E4E;
+    color: #ffffff;
+    }
+
+  .footer{
+  background:#3E2723;
+  color:#EFE7E1;
+  padding:50px 36px;
+  font-size:14px;
+}
+
+.footer-container{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:30px;
+}
+
+.footer-section h4{
+  color:#C6A75E;
+  margin-bottom:14px;
+}
+
+.footer-section a,
+.footer-section p{
+  display:block;
+  color:#EFE7E1;
+  margin-bottom:8px;
+  text-decoration:none;
+}
+
+.footer-section a:hover{
+  text-decoration:underline;
+}
+
+.social a{
+  margin-right:12px;
+}
+
+.footer-bottom{
+  text-align:margin-left;
+  margin-top:30px;
+  color:#D7CFC8;
+  font-size:13px;
+}
+
+.footer-container {
+  text-align: left;
+}
+
+.footer-section {
+  text-align: left;
+}
+
+.footer-section h4,
+.footer-section p,
+.footer-section a {
+  text-align: left;
+}
+
+
+    /* CART LAYOUT */
+  .cart-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 40px;
+
+  max-width: none;        /* 🔑 allow full width */
+  margin: 0;              /* 🔑 remove centering */
+  padding: 40px 36px;     /* keep nice spacing */
+}
+
+
+/* SIDEBAR */
+.cart-sidebar {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+  height: fit-content;
+}
+
+.sidebar-title {
+  color: #3E2723;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* SIDEBAR LINKS */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #3E2723;
+  transition: background .2s ease, color .2s ease;
+}
+
+.sidebar-link:hover {
+  background: rgba(46, 94, 78, 0.12);
+  color: #2E5E4E;
+}
+
+.sidebar-link.active {
+  background: #2E5E4E;
+  color: #fff;
+}
+
+.sidebar-link .icon {
+  font-size: 18px;
+}
+
+/* CART BADGE */
+.sidebar-link .badge {
+  margin-left: auto;
+  background: #C6A75E;
+  color: #3E2723;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+@media (max-width: 768px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-sidebar {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+  }
+
+  .sidebar-link {
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+}
+
+.cart-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
     footer {
       background-color: #3E2723;
@@ -164,6 +313,22 @@
       text-align: center;
       font-size: 14px;
     }
+
+
+
+/* CENTER ACTIONS COLUMN */
+td.qty-controls,
+th:last-child {
+  text-align: center;
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* 🔑 CENTER HORIZONTALLY */
+  gap: 8px;
+}
+
   </style>
 </head>
 
@@ -179,51 +344,106 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
-      <a href="cart.html">Cart<span id="cartCount"></span></a>
-      <a href="order.html">Place Order</a>
-      <a href="order-history.html">Order History</a>
-      <a href="order-management.html">Order Management</a>
-      <a href="operations.html">Operations</a>
+      <a href="cart.html">🛒 Cart<span id="cartCount"></span></a>
     </nav>
   </div>
 </header>
 
 <!-- ================= MAIN ================= -->
-<main>
-  <h1>Your Shopping Cart</h1>
 
-  <div class="cart-box">
-    <table id="cartTable">
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Price</th>
-          <th>Quantity</th>
-          <th>Subtotal</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="cartBody"></tbody>
-    </table>
+<main class="cart-layout">
 
-    <p id="emptyMsg" class="empty" style="display:none;">
-      Your cart is currently empty.
-    </p>
+  <!-- LEFT SIDEBAR -->
+  <aside class="cart-sidebar">
+    <h3 class="sidebar-title">Shopping Cart</h3>
 
-    <div id="totalRow" class="total"></div>
-  </div>
+    <a href="cart.html" class="sidebar-link active">
+      <span class="icon"></span> Cart
+      <span class="badge" id="cartCountSide"></span>
+    </a>
 
-  <div class="actions">
-    <button class="secondary" onclick="continueShopping()">Continue Shopping</button>
-    <button class="primary" onclick="checkout()">Place Order</button>
-  </div>
+    <a href="order.html" class="sidebar-link">
+      <span class="icon"></span> Place Order
+    </a>
+
+    <a href="order-history.html" class="sidebar-link">
+      <span class="icon"></span> Order History
+    </a>
+
+    <a href="return-refund.html" class="sidebar-link">
+      <span class="icon"></span> Returns & Refunds
+    </a>
+  </aside>
+
+  <!-- RIGHT CONTENT -->
+  <section class="cart-content">
+    <h1 class="cart-title">Shopping Cart</h1>
+
+    <div class="cart-box">
+      <table id="cartTable">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody id="cartBody"></tbody>
+      </table>
+
+      <p id="emptyMsg" class="empty" style="display:none;">
+        Your cart is currently empty.
+      </p>
+
+      <div id="totalRow" class="total"></div>
+    </div>
+
+    <div class="actions">
+      <button class="secondary" onclick="continueShopping()">Continue Shopping</button>
+      <button class="primary" onclick="checkout()">Place Order</button>
+    </div>
+  </section>
+
 </main>
 
-<!-- ================= FOOTER ================= -->
-<footer>
-  © 2025 Oak & Linen Furniture. All rights reserved.
-</footer>
 
+<footer>
+  <div class="footer-container">
+
+    <div class="footer-section">
+      <h4>Oak & Linen</h4>
+      <p>Crafted furniture. Intelligent operations.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Customer Care</h4>
+      <a href="#">Delivery Information</a>
+      <a href="#">Returns & Refund Policy</a>
+      <a href="#">Warranty & Repairs</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
+      <a href="tel:+35315550199">+353 1 555 0199</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Connect</h4>
+      <div class="social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2025 Oak & Linen Furniture. All rights reserved.
+  </div>
+</footer>
 <!-- ================= CART LOGIC ================= -->
 <script>
  function updateCartCount() {
@@ -262,13 +482,14 @@
         <tr>
           <td>${item.product}</td>
           <td>€${item.price}</td>
-          <td>${item.qty}</td>
           <td>€${subtotal}</td>
           <td class="qty-controls">
             <button onclick="decreaseQty(${index})">−</button>
+            <span style="margin:0 8px;font-weight:600">${item.qty}</span>
+            <button onclick="increaseQty(${index})">+</button>
             <button onclick="removeItem(${index})">❌</button>
           </td>
-        </tr>
+
       `;
     });
 
@@ -299,6 +520,54 @@
 
   document.addEventListener("DOMContentLoaded", renderCart);
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((sum, item) => sum + item.qty, 0);
+    const badge = document.getElementById("cartCountSide");
+
+    if (badge && count > 0) {
+      badge.textContent = count;
+    }
+  });
+</script>
+
+<script>
+function increaseQty(index) {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart[index].qty += 1;
+  localStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+}
+</script>
+
+<script>
+function decreaseQty(index) {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if (cart[index].qty > 1) {
+    cart[index].qty -= 1;
+  } else {
+    cart.splice(index, 1); // remove item if qty = 1
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+}
+</script>
+<script>
+function removeItem(index) {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  cart.splice(index, 1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  renderCart();
+}
+</script>
+
+
+
+
 
 </body>
 </html>
