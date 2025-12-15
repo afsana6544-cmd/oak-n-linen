@@ -132,22 +132,48 @@
     }
 
     function drawBar(id, data) {
-      const c = document.getElementById(id);
-      const ctx = c.getContext("2d");
-      ctx.clearRect(0,0,c.width,c.height);
+     const c = document.getElementById(id);
+     const ctx = c.getContext("2d");
 
-      const keys = Object.keys(data);
-      const vals = Object.values(data);
-      const max = Math.max(...vals,1);
+     ctx.clearRect(0, 0, c.width, c.height);
 
-      keys.forEach((k,i) => {
-        const h = (vals[i]/max)*150;
-        ctx.fillStyle = "#2E5E4E";
-        ctx.fillRect(i*70+40,180-h,40,h);
-        ctx.fillStyle = "#000";
-        ctx.fillText(k, i*70+40,195);
-      });
-    }
+     // ✅ Match site font
+     ctx.font = "12px Segoe UI, Arial";
+     ctx.textAlign = "center";
+     ctx.textBaseline = "top";
+
+     const keys = Object.keys(data);
+     const vals = Object.values(data);
+     const max = Math.max(...vals, 1);
+
+      const barWidth = 40;
+      const gap = 90;              // ✅ more spacing between bars
+      const startX = 60;
+      const baseY = 165;
+
+      keys.forEach((label, i) => {
+      const value = vals[i];
+      const height = (value / max) * 130;
+      const x = startX + i * gap;
+
+      // Bar
+      ctx.fillStyle = "#2E5E4E";
+      ctx.fillRect(x - barWidth / 2, baseY - height, barWidth, height);
+
+      // Label (wrapped if long)
+      ctx.fillStyle = "#2B2B2B";
+
+      if (label.length > 12) {
+      const words = label.split(" ");
+      words.forEach((w, idx) => {
+        ctx.fillText(w, x, baseY + 6 + idx * 14);
+       });
+      } else {
+      ctx.fillText(label, x, baseY + 6);
+     }
+   });
+  }
+
   </script>
 
   <!-- ================= STYLES ================= -->
@@ -370,7 +396,7 @@
     </div>
 
     <h2>Product Sales Volume</h2>
-    <canvas id="productChart" width="500" height="220"></canvas>
+    <canvas id="productChart" width="500" height="260"></canvas>
 
     <h2>Returns / Refunds / Replacements</h2>
     <div class="grid">
