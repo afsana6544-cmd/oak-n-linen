@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Return / Refund – Oak & Linen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<!-- ================= FIREBASE ================= -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import {
+    getFirestore,
+    doc,
+    getDoc,
+    updateDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBI3u_ZBnh-9IpLr6I4iUNG7IDo3hzV6ds",
+    authDomain: "oak-n-linen-project.firebaseapp.com",
+    projectId: "oak-n-linen-project",
+    storageBucket: "oak-n-linen-project.firebasestorage.app",
+    messagingSenderId: "783016997772",
+    appId: "1:783016997772:web:2d9e352bdcc1ad4eba1ca9"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get("orderId");
+  const productName = params.get("product");
+
+  let selectedItem = null;
+
+  window.onload = async () => {
+    if (!orderId || !productName) return;
+
+    const snap = await getDoc(doc(db, "orders", orderId));
+    if (!snap.exists()) return;
+
+    const order = snap.data();
+    const item = order.items.find(i => i.product === productName);
+    if (!item) return;
+
+    selectedItem = item;
+
+    document.getElementById("pName").innerText = item.product;
+    document.getElementById("pQty").innerText = item.qty;
+    document.getElementById("pPrice").innerText = "€" + item.price;
+    document.getElementById("pDate").innerText =
+      order.createdAt?.toDate().toLocaleDateString() || "—";
+    document.getElementById("pStatus").innerText = order.status;
+  };
+
+  window.submitRequest = async () => {
+    const type = document.getElementById("requestType").value;
+    const reason = document.getElementById("reason").value.trim();
+
+    if (!type) {
+      alert("Please select a request type.");
+      return;
+    }
+
+    await updateDoc(doc(db, "orders", orderId), {
+      resolution: type,
+      resolutionProduct: selectedItem.product,
+      customerRequestNote: reason,
+      resolutionRequestedAt: serverTimestamp()
+    });
+
+    alert("Your request has been submitted successfully.");
+    window.location.href = "order-history.html";
+  };
+</script>
+
+<!-- ================= STYLES ================= -->
+<style>
+*{box-sizing:border-box;font-family:"Segoe UI",Arial}
+body{
+  margin:0;
+  background:#EFE7E1;
+  color:#2B2B2B;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ===== HEADER ===== */
+header{
+  background:#fff;
+  border-bottom:4px solid #3E2723;
+  padding:18px 36px;
+}
+
+.header-container{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:22px;
+  font-weight:bold;
+  color:#3E2723;
+  text-decoration:none;
+}
+
+.logo-icon{
+  width:40px;
+  height:40px;
+  background:#3E2723;
+  color:#C6A75E;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
+}
+
+nav a{
+  margin-left:24px;
+  font-weight:600;
+  color:#2B2B2B;
+  text-decoration:none;
+}
+
+/* ===== MAIN ===== */
+main{
+  flex:1;
+  max-width:800px;
+  margin:40px auto;
+  padding:0 36px;
+}
+
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  box-shadow:0 8px 22px rgba(0,0,0,.08);
+  margin-bottom:30px;
+}
+
+.info-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.info-grid div{
+  background:#EFE7E1;
+  padding:12px;
+  border-radius:8px;
+}
+
+label{
+  display:block;
+  margin-top:20px;
+  font-weight:600;
+}
+
+select,textarea,button{
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+textarea{
+  resize:vertical;
+  min-height:100px;
+}
+
+button{
+  margin-top:24px;
+  background:#2E5E4E;
+  color:#fff;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  background:#3E2723;
+  color:#EFE7E1;
+  text-align:center;
+  padding:24px;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">OL</div> Oak & Linen
+    </a>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="products.html">Products</a>
+      <a href="cart.html">Cart</a>
+      <a href="order.html">Place Order</a>
+      <a href="order-history.html">Order History</a>
+      <a href="order-management.html">Order Management</a>
+      <a href="operations.html">Operations</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- PRODUCT INFORMATION -->
+  <div class="card">
+    <h1>Product Information</h1>
+    <div class="info-grid">
+      <div><strong>Product:</strong> <span id="pName"></span></div>
+      <div><strong>Quantity:</strong> <span id="pQty"></span></div>
+      <div><strong>Price:</strong> <span id="pPrice"></span></div>
+      <div><strong>Order Date:</strong> <span id="pDate"></span></div>
+      <div><strong>Status:</strong> <span id="pStatus"></span></div>
+    </div>
+  </div>
+
+  <!-- RETURN / REFUND FORM -->
+  <div class="card">
+    <h2>Return / Refund / Replacement</h2>
+
+    <label for="requestType">Request Type</label>
+    <select id="requestType">
+      <option value="">Select an option</option>
+      <option value="Return">Return</option>
+      <option value="Refund">Refund</option>
+      <option value="Replacement">Replacement</option>
+    </select>
+
+    <label for="reason">Reason (optional)</label>
+    <textarea id="reason" placeholder="Describe the issue with the product..."></textarea>
+
+    <button onclick="submitRequest()">Submit Request</button>
+  </div>
+
+</main>
+
+<footer>
+  © 2025 Oak & Linen Furniture. All rights reserved.
+</footer>
+
+</body>
+</html>
