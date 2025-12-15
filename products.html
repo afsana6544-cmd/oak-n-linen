@@ -302,8 +302,9 @@
 
   function updateCartCount() {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const count = cart.reduce((sum, i) => sum + i.qty, 0);
-    document.getElementById("cartCount").innerText = count ? `(${count})` : "";
+  if(cart.length){
+    document.getElementById("cartCount").innerText =
+      cart.reduce((s,i)=>s+i.qty,0);
   }
 
   function showFeedback(product) {
