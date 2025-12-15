@@ -137,8 +137,20 @@ nav a{
   margin-left:24px;
   font-weight:600;
   color:#2B2B2B;
-  text-decoration:none;   /* 🔥 remove underline */
+  text-decoration:none;
 }
+
+/* Cart count badge – SAME as other pages */
+#cartCount{
+  background:#2E5E4E;
+  color:#ffffff;
+  border-radius:12px;
+  padding:2px 8px;
+  font-size:12px;
+  margin-left:6px;
+  font-weight:600;
+}
+
 
 /* ===== MAIN ===== */
 main{
@@ -146,10 +158,6 @@ main{
   max-width:1200px;
   margin:40px auto;
   padding:0 36px;
-}
-
-h1, h2, h3{
-  text-decoration:none;  /* 🔥 ensure no underline */
 }
 
 input,button{
@@ -193,7 +201,7 @@ th{
   padding:8px 14px;
   border-radius:6px;
   font-weight:600;
-  text-decoration:none;  /* 🔥 no underline */
+  text-decoration:none;
   display:inline-block;
 }
 
@@ -256,38 +264,19 @@ footer{
   © 2025 Oak & Linen Furniture. All rights reserved.
 </footer>
 
-<!-- ================= CART + LIKE LOGIC ================= -->
+<!-- ================= SAFE CART COUNT LOGIC ================= -->
 <script>
-  function addToCart(product, price) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    const item = cart.find(i => i.product === product);
-    if (item) item.qty++;
-    else cart.push({ product, price, qty: 1 });
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    showFeedback(product);
-  }
-
   function updateCartCount() {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const count = cart.reduce((sum, i) => sum + i.qty, 0);
-    document.getElementById("cartCount").innerText = count ? `(${count})` : "";
+    const count = cart.reduce((sum, item) => sum + item.qty, 0);
+    const badge = document.getElementById("cartCount");
+
+    if (!badge) return;
+
+    badge.innerText = count > 0 ? count : "";
   }
 
-  function showFeedback(product) {
-    const msg = document.getElementById("cartFeedback");
-    msg.innerText = `${product} added to cart`;
-    msg.style.display = "block";
-    setTimeout(() => msg.style.display = "none", 2000);
-  }
-
-  function toggleLike(btn) {
-    btn.classList.toggle("liked");
-  }
-
-  updateCartCount();
+  document.addEventListener("DOMContentLoaded", updateCartCount);
 </script>
 
 </body>
