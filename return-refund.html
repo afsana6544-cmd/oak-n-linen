@@ -87,6 +87,16 @@ body{
   flex-direction:column;
 }
 
+#cartCount{
+  background:#2E5E4E;
+  color:#ffffff;
+  border-radius:12px;
+  padding:2px 8px;
+  font-size:12px;
+  margin-left:6px;
+  font-weight:600;
+}
+
 /* ===== HEADER ===== */
 header{
   background:#fff;
@@ -208,7 +218,7 @@ footer{
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
-      <a href="cart.html">Cart</a>
+      <a href="cart.html">Cart<span id="cartCount"></span></a>
       <a href="order.html">Place Order</a>
       <a href="order-history.html">Order History</a>
       <a href="order-management.html">Order Management</a>
@@ -250,6 +260,20 @@ footer{
   </div>
 
 </main>
+
+<script>
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((sum, item) => sum + item.qty, 0);
+    const badge = document.getElementById("cartCount");
+
+    if (!badge) return;
+
+    badge.innerText = count > 0 ? count : "";
+  }
+
+  document.addEventListener("DOMContentLoaded", updateCartCount);
+</script>
 
 <footer>
   © 2025 Oak & Linen Furniture. All rights reserved.
