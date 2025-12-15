@@ -277,11 +277,10 @@
   }
 
   function decreaseQty(index) {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    cart[index].qty--;
-    if (cart[index].qty <= 0) cart.splice(index, 1);
-    localStorage.setItem("cart", JSON.stringify(cart));
-    renderCart();
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  if(cart.length){
+    document.getElementById("cartCount").innerText =
+      cart.reduce((s,i)=>s+i.qty,0);
   }
 
   function removeItem(index) {
