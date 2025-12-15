@@ -205,6 +205,82 @@ th{
   display:inline-block;
 }
 
+/* ===== ORDER HISTORY LAYOUT (SIDEBAR) ===== */
+.order-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 40px;
+
+  max-width: none;
+  margin: 0;
+  padding: 40px 36px;
+}
+
+/* LEFT SIDEBAR */
+.order-sidebar {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+  height: fit-content;
+}
+
+.sidebar-title {
+  color: #3E2723;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* SIDEBAR LINKS */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #3E2723;
+  text-decoration: none;
+  transition: background .2s ease, color .2s ease;
+}
+
+.sidebar-link:hover {
+  background: rgba(46, 94, 78, 0.12);
+  color: #2E5E4E;
+}
+
+.sidebar-link.active {
+  background: #2E5E4E;
+  color: #fff;
+}
+
+/* RIGHT CONTENT */
+.order-content h1 {
+  margin-top: 0;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .order-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .order-sidebar {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+  }
+
+  .sidebar-link {
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+}
+
+
 /* ===== FOOTER ===== */
 footer{
   background:#3E2723;
@@ -213,6 +289,52 @@ footer{
   padding:24px;
   font-size:14px;
 }
+
+/* ===== FOOTER (GLOBAL – SAME AS HOME) ===== */
+footer {
+  background: #3E2723;
+  color: #EFE7E1;
+  padding: 50px 36px;
+  font-size: 14px;
+}
+
+.footer-container {
+  max-width: 1000px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  text-align: left;
+}
+
+.footer-section h4 {
+  color: #C6A75E;
+  margin-bottom: 14px;
+}
+
+.footer-section a,
+.footer-section p {
+  display: block;
+  color: #EFE7E1;
+  margin-bottom: 8px;
+  text-decoration: none;
+}
+
+.footer-section a:hover {
+  text-decoration: underline;
+}
+
+.social a {
+  margin-right: 12px;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  color: #D7CFC8;
+  font-size: 13px;
+}
+
 </style>
 </head>
 
@@ -226,42 +348,100 @@ footer{
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
-      <a href="cart.html">Cart<span id="cartCount"></span></a>
-      <a href="order.html">Place Order</a>
-      <a href="order-history.html">Order History</a>
-      <a href="order-management.html">Order Management</a>
-      <a href="operations.html">Operations</a>
+      <a href="cart.html">🛒 Cart<span id="cartCount"></span></a>
     </nav>
   </div>
 </header>
 
-<main>
-  <h1>Order History & Tracking</h1>
-  <p>Enter the email used to place your order.</p>
+<main class="order-layout">
 
-  <input id="email" placeholder="customer@email.com">
-  <button onclick="searchOrders()">View Orders</button>
+  <!-- LEFT SIDEBAR -->
+  <aside class="order-sidebar">
+    <h3 class="sidebar-title">Order History</h3>
 
-  <br><br>
+    <a href="cart.html" class="sidebar-link">
+      Cart
+    </a>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Order</th>
-        <th>Date</th>
-        <th>Product</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="ordersBody"></tbody>
-  </table>
+    <a href="order.html" class="sidebar-link">
+      Place Order
+    </a>
+
+    <a href="order-history.html" class="sidebar-link active">
+      Order History
+    </a>
+
+    <a href="return-refund.html" class="sidebar-link">
+      Returns & Refunds
+    </a>
+  </aside>
+
+  <!-- RIGHT CONTENT -->
+  <section class="order-content">
+
+    <h1>Order History & Tracking</h1>
+    <p>Enter the email used to place your order.</p>
+
+    <input id="email" placeholder="customer@email.com">
+    <button onclick="searchOrders()">View Orders</button>
+
+    <br><br>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Date</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="ordersBody"></tbody>
+    </table>
+
+  </section>
+
 </main>
 
+
 <footer>
-  © 2025 Oak & Linen Furniture. All rights reserved.
+  <div class="footer-container">
+
+    <div class="footer-section">
+      <h4>Oak & Linen</h4>
+      <p>Crafted furniture. Intelligent operations.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Customer Care</h4>
+      <a href="#">Delivery Information</a>
+      <a href="#">Returns & Refund Policy</a>
+      <a href="#">Warranty & Repairs</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
+      <a href="tel:+35315550199">+353 1 555 0199</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Connect</h4>
+      <div class="social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2025 Oak & Linen Furniture. All rights reserved.
+  </div>
 </footer>
 
 <!-- ================= SAFE CART COUNT LOGIC ================= -->
