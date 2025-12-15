@@ -300,12 +300,15 @@
     showFeedback(product);
   }
 
-  function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if(cart.length){
-    document.getElementById "cartCount".innerText =
-      cart.reduce((s,i)=>s+i.qty,0);
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const count = cart.reduce((sum, i) => sum + i.qty, 0);
+
+  const cartCountEl = document.getElementById("cartCount");
+  if (cartCountEl) {
+    cartCountEl.innerText = count ? ` ${count}` : "";
   }
+}
 
   function showFeedback(product) {
     const msg = document.getElementById("cartFeedback");
