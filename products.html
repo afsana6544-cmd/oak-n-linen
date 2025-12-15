@@ -190,6 +190,99 @@
       text-align: center;
       font-size: 14px;
     }
+/* ===== NAV ACTIVE & CLICK ANIMATION ===== */
+nav a {
+  position: relative;
+  transition: background-color .2s ease, color .2s ease;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+
+/* ACTIVE PAGE */
+nav a.active {
+  background: #2E5E4E;
+  color: #ffffff;
+}
+
+/* CLICK BLINK EFFECT */
+nav a.clicked {
+  animation: navBlink 0.4s ease;
+}
+
+@keyframes navBlink {
+  0% {
+    background-color: #2E5E4E;
+    color: #ffffff;
+  }
+  50% {
+    background-color: #C6A75E;
+    color: #3E2723;
+  }
+  100% {
+    background-color: #2E5E4E;
+    color: #ffffff;
+  }
+}
+
+.footer{
+  background:#3E2723;
+  color:#EFE7E1;
+  padding:50px 36px;
+  font-size:14px;
+}
+
+.footer-container{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:30px;
+}
+
+.footer-section h4{
+  color:#C6A75E;
+  margin-bottom:14px;
+}
+
+.footer-section a,
+.footer-section p{
+  display:block;
+  color:#EFE7E1;
+  margin-bottom:8px;
+  text-decoration:none;
+}
+
+.footer-section a:hover{
+  text-decoration:underline;
+}
+
+.social a{
+  margin-right:12px;
+}
+
+.footer-bottom{
+  text-align:margin-left;
+  margin-top:30px;
+  color:#D7CFC8;
+  font-size:13px;
+}
+
+.footer-container {
+  text-align: left;
+}
+
+.footer-section {
+  text-align: left;
+}
+
+.footer-section h4,
+.footer-section p,
+.footer-section a {
+  text-align: left;
+}
+
+
+
   </style>
 </head>
 
@@ -205,11 +298,7 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
-      <a href="cart.html">Cart<span id="cartCount"></span></a>
-      <a href="order.html">Place Order</a>
-      <a href="order.html">Order History</a>
-      <a href="order-management.html">Order Management</a>
-      <a href="operations.html">Operations</a>
+      <a href="cart.html">🛒 Cart<span id="cartCount"></span></a>
     </nav>
   </div>
 </header>
@@ -282,10 +371,6 @@
 
 <div id="cartFeedback"></div>
 
-<!-- ================= FOOTER ================= -->
-<footer>
-  © 2025 Oak & Linen Furniture. All rights reserved.
-</footer>
 
 <!-- ================= CART + LIKE LOGIC ================= -->
 <script>
@@ -320,6 +405,61 @@
 
   updateCartCount();
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const currentPage =
+    location.pathname.split("/").pop() || "index.html";
+
+  document.querySelectorAll("nav a").forEach(link => {
+    if (link.getAttribute("href") === currentPage) {
+      link.classList.add("active");
+    }
+
+    link.addEventListener("click", () => {
+      document.querySelectorAll("nav a").forEach(l => l.classList.remove("clicked"));
+      link.classList.add("clicked");
+    });
+  });
+});
+</script>
+
+<footer>
+  <div class="footer-container">
+
+    <div class="footer-section">
+      <h4>Oak & Linen</h4>
+      <p>Crafted furniture. Intelligent operations.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Customer Care</h4>
+      <a href="#">Delivery Information</a>
+      <a href="#">Returns & Refund Policy</a>
+      <a href="#">Warranty & Repairs</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
+      <a href="tel:+35315550199">+353 1 555 0199</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Connect</h4>
+      <div class="social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2025 Oak & Linen Furniture. All rights reserved.
+  </div>
+</footer>
 
 </body>
 </html>
