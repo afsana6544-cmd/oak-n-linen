@@ -34,6 +34,13 @@
    onAuthStateChanged(auth, user => {
      const publicHeader = document.getElementById("publicHeader");
 
+     const staffLinks = document.querySelectorAll(".staff-only");
+
+     staffLinks.forEach(link => {
+      link.style.display = user ? "inline-block" : "none";
+     });
+
+
      if (user) {
       // Logged in
       publicHeader.style.display = "none";
@@ -48,8 +55,13 @@
      loginView.style.display = "flex";
      dashboardView.style.display = "none";
    }
- });
 
+   if (user) {
+          localStorage.setItem("siteMode", "internal");
+          } else {
+          localStorage.setItem("siteMode", "public");
+       }
+    });
 
     window.login = async () => {
       try {
@@ -318,6 +330,38 @@
       box-shadow:0 8px 22px rgba(0,0,0,0.08);
     }
 
+    /* ===== NAV ACTIVE & CLICK ===== */
+nav a {
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+nav a.active {
+  background: #2E5E4E; /* dark green */
+  color: #fff;
+}
+
+nav a.clicked {
+  animation: navBlink 0.4s ease;
+}
+
+@keyframes navBlink {
+  0% {
+    background: #2E5E4E;
+    color: #fff;
+  }
+  50% {
+    background: #C6A75E;
+    color: #3E2723;
+  }
+  100% {
+    background: #2E5E4E;
+    color: #fff;
+  }
+}
+
+
     footer {
       background:#3E2723;
       color:#fff;
@@ -326,6 +370,51 @@
       font-size:14px;
       flex:0 0 auto;            /* ✅ footer stays at bottom */
     }
+
+        footer {
+      background:#3E2723;
+      color:#EFE7E1;
+      padding:50px 36px;
+      font-size:14px;
+    }
+
+    .footer-container {
+      max-width:1000px;
+      margin:auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:30px;
+      text-align:left;
+    }
+
+    .footer-section h4 {
+      color:#C6A75E;
+      margin-bottom:14px;
+    }
+
+    .footer-section a,
+    .footer-section p {
+      display:block;
+      color:#EFE7E1;
+      margin-bottom:8px;
+      text-decoration:none;
+    }
+
+    .footer-section a:hover {
+      text-decoration:underline;
+    }
+
+    .social a {
+      margin-right:12px;
+    }
+
+    .footer-bottom {
+      text-align:center;
+      margin-top:30px;
+      color:#D7CFC8;
+      font-size:13px;
+    }
+    
   </style>
 </head>
 
@@ -341,7 +430,7 @@
     <nav>
       <a href="index.html">Home</a>
       <a href="order-management.html">Order Management</a>
-      <a href="operations.html">Operations</a>
+      <a href="operations.html">Operational Insights</a>
     </nav>
   </div>
 </header>
@@ -411,8 +500,65 @@
 </div>
 
 <footer>
-  © 2025 Oak & Linen Furniture. All rights reserved.
+  <div class="footer-container">
+
+    <div class="footer-section">
+      <h4>Oak & Linen</h4>
+      <p>Crafted furniture. Intelligent operations.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Customer Care</h4>
+      <a href="#">Delivery Information</a>
+      <a href="#">Returns & Refund Policy</a>
+      <a href="#">Warranty & Repairs</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
+      <a href="tel:+35315550199">+353 1 555 0199</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Connect</h4>
+      <div class="social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer-bottom">
+    © 2025 Oak & Linen Furniture. All rights reserved.
+  </div>
 </footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const currentPage =
+    location.pathname.split("/").pop() || "index.html";
+
+  const navLinks = document.querySelectorAll("header nav a");
+
+  navLinks.forEach(link => {
+    const href = link.getAttribute("href");
+
+    // Persistent active state
+    if (href === currentPage) {
+      link.classList.add("active");
+    }
+
+    // Click blink
+    link.addEventListener("click", () => {
+      navLinks.forEach(l => l.classList.remove("clicked"));
+      link.classList.add("clicked");
+    });
+  });
+});
+</script>
+
 
 </body>
 </html>
