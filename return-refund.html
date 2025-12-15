@@ -197,6 +197,81 @@ button{
   cursor:pointer;
 }
 
+/* ===== RETURN / REFUND LAYOUT (SIDEBAR) ===== */
+.refund-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 40px;
+
+  max-width: none;
+  margin: 0;
+  padding: 40px 36px;
+}
+
+/* LEFT SIDEBAR */
+.refund-sidebar {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.08);
+  height: fit-content;
+}
+
+.sidebar-title {
+  color: #3E2723;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+
+/* SIDEBAR LINKS */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #3E2723;
+  text-decoration: none;
+  transition: background .2s ease, color .2s ease;
+}
+
+.sidebar-link:hover {
+  background: rgba(46, 94, 78, 0.12);
+  color: #2E5E4E;
+}
+
+.sidebar-link.active {
+  background: #2E5E4E;
+  color: #fff;
+}
+
+/* RIGHT CONTENT */
+.refund-content h1 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .refund-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .refund-sidebar {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+  }
+
+  .sidebar-link {
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+}
+
+
 /* ===== FOOTER ===== */
 footer{
   background:#3E2723;
@@ -205,6 +280,50 @@ footer{
   padding:24px;
   font-size:14px;
 }
+
+    footer {
+      background:#3E2723;
+      color:#EFE7E1;
+      padding:50px 36px;
+      font-size:14px;
+    }
+
+    .footer-container {
+      max-width:1000px;
+      margin:auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:30px;
+      text-align:left;
+    }
+
+    .footer-section h4 {
+      color:#C6A75E;
+      margin-bottom:14px;
+    }
+
+    .footer-section a,
+    .footer-section p {
+      display:block;
+      color:#EFE7E1;
+      margin-bottom:8px;
+      text-decoration:none;
+    }
+
+    .footer-section a:hover {
+      text-decoration:underline;
+    }
+
+    .social a {
+      margin-right:12px;
+    }
+
+    .footer-bottom {
+      text-align:center;
+      margin-top:30px;
+      color:#D7CFC8;
+      font-size:13px;
+    }
 </style>
 </head>
 
@@ -218,48 +337,71 @@ footer{
     <nav>
       <a href="index.html">Home</a>
       <a href="products.html">Products</a>
-      <a href="cart.html">Cart<span id="cartCount"></span></a>
-      <a href="order.html">Place Order</a>
-      <a href="order-history.html">Order History</a>
-      <a href="order-management.html">Order Management</a>
-      <a href="operations.html">Operations</a>
+      <a href="cart.html">🛒 Cart<span id="cartCount"></span></a>
     </nav>
   </div>
 </header>
 
-<main>
+<main class="refund-layout">
 
-  <!-- PRODUCT INFORMATION -->
-  <div class="card">
-    <h1>Product Information</h1>
-    <div class="info-grid">
-      <div><strong>Product:</strong> <span id="pName"></span></div>
-      <div><strong>Quantity:</strong> <span id="pQty"></span></div>
-      <div><strong>Price:</strong> <span id="pPrice"></span></div>
-      <div><strong>Order Date:</strong> <span id="pDate"></span></div>
-      <div><strong>Status:</strong> <span id="pStatus"></span></div>
+  <!-- LEFT SIDEBAR -->
+  <aside class="refund-sidebar">
+    <h3 class="sidebar-title">Account Info</h3>
+
+    <a href="cart.html" class="sidebar-link">
+      Cart
+    </a>
+
+    <a href="order.html" class="sidebar-link">
+      Place Order
+    </a>
+
+    <a href="order-history.html" class="sidebar-link">
+      Order History
+    </a>
+
+    <a href="return-refund.html" class="sidebar-link active">
+      Returns & Refunds
+    </a>
+  </aside>
+
+  <!-- RIGHT CONTENT -->
+  <section class="refund-content">
+
+    <!-- PRODUCT INFORMATION -->
+    <div class="card">
+      <h1>Product Information</h1>
+      <div class="info-grid">
+        <div><strong>Product:</strong> <span id="pName"></span></div>
+        <div><strong>Quantity:</strong> <span id="pQty"></span></div>
+        <div><strong>Price:</strong> <span id="pPrice"></span></div>
+        <div><strong>Order Date:</strong> <span id="pDate"></span></div>
+        <div><strong>Status:</strong> <span id="pStatus"></span></div>
+      </div>
     </div>
-  </div>
 
-  <!-- RETURN / REFUND FORM -->
-  <div class="card">
-    <h2>Return / Refund / Replacement</h2>
+    <!-- RETURN / REFUND FORM -->
+    <div class="card">
+      <h2>Return / Refund / Replacement</h2>
 
-    <label for="requestType">Request Type</label>
-    <select id="requestType">
-      <option value="">Select an option</option>
-      <option value="Return">Return</option>
-      <option value="Refund">Refund</option>
-      <option value="Replacement">Replacement</option>
-    </select>
+      <label for="requestType">Request Type</label>
+      <select id="requestType">
+        <option value="">Select an option</option>
+        <option value="Return">Return</option>
+        <option value="Refund">Refund</option>
+        <option value="Replacement">Replacement</option>
+      </select>
 
-    <label for="reason">Reason (optional)</label>
-    <textarea id="reason" placeholder="Describe the issue with the product..."></textarea>
+      <label for="reason">Reason (optional)</label>
+      <textarea id="reason" placeholder="Describe the issue with the product..."></textarea>
 
-    <button onclick="submitRequest()">Submit Request</button>
-  </div>
+      <button onclick="submitRequest()">Submit Request</button>
+    </div>
+
+  </section>
 
 </main>
+
 
 <script>
   function updateCartCount() {
@@ -276,7 +418,39 @@ footer{
 </script>
 
 <footer>
-  © 2025 Oak & Linen Furniture. All rights reserved.
+  <div class="footer-container">
+
+    <div class="footer-section">
+      <h4>Oak & Linen</h4>
+      <p>Crafted furniture. Intelligent operations.</p>
+    </div>
+
+    <div class="footer-section">
+      <h4>Customer Care</h4>
+      <a href="#">Delivery Information</a>
+      <a href="#">Returns & Refund Policy</a>
+      <a href="#">Warranty & Repairs</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Contact</h4>
+      <a href="mailto:support@oakandlinen.ie">support@oakandlinen.ie</a>
+      <a href="tel:+35315550199">+353 1 555 0199</a>
+    </div>
+
+    <div class="footer-section">
+      <h4>Connect</h4>
+      <div class="social">
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">LinkedIn</a>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer-bottom">
+    © 2025 Oak & Linen Furniture. All rights reserved.
+  </div>
 </footer>
 
 </body>
