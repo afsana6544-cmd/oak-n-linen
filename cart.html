@@ -226,10 +226,10 @@
 
 <!-- ================= CART LOGIC ================= -->
 <script>
-  function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const count = cart.reduce((sum, i) => sum + i.qty, 0);
-    document.getElementById("cartCount").innerText = count ? `(${count})` : "";
+ function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const count = cart.reduce((sum, i) => sum + i.qty, 0);
+  document.getElementById("cartCount").innerText = count > 0 ? count : "";
   }
 
   function renderCart() {
