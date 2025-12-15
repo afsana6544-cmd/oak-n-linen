@@ -210,6 +210,7 @@
       <a href="order.html">Order History</a>
       <a href="order-management.html">Order Management</a>
       <a href="operations.html">Operations</a>
+    </nav>
   </div>
 </header>
 
@@ -301,9 +302,9 @@
   }
 
   function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const count = cart.reduce((sum, i) => sum + i.qty, 0);
-    document.getElementById("cartCount").innerText = count ? `(${count})` : "";
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const count = cart.reduce((sum, i) => sum + i.qty, 0);
+  document.getElementById("cartCount").innerText = count > 0 ? count : "";
   }
 
   function showFeedback(product) {
