@@ -5,6 +5,7 @@
   <title>Staff Portal – Oak & Linen</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+
   <!-- ================= FIREBASE ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -334,6 +335,33 @@
       overflow:hidden;
       box-shadow:0 10px 28px rgba(0,0,0,0.08);
     }
+    
+    .user-actions {
+    display: flex;
+    align-items: center;   /* 🔑 THIS fixes vertical alignment */
+    gap: 20px;
+    font-weight: 600;
+    }
+
+    .user-email {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    color: #2B2B2B;
+    }
+
+    .logout-btn {
+     padding: 6px 10px;
+     border-radius: 8px;
+     background: #2E5E4E;
+     color: #fff;
+     text-decoration: none;
+     transition: background-color .2s ease;
+    }
+
+     .logout-btn:hover {
+     background: #244C3F;
+     }
 
     /* ===== NAV ACTIVE & CLICK ===== */
 nav a {
@@ -417,10 +445,14 @@ nav a.clicked {
         <div class="logo-icon">OL</div>
         Oak & Linen
       </div>
-      <nav>
-        <span>Logged in as: <strong id="staffEmail"></strong></span>
-        <a href="#" onclick="logout()">Logout</a>
-      </nav>
+      <div class="user-actions">
+         <span class="user-email">
+          Logged in as:<strong id="staffEmail"></strong>
+      </span>
+      <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+    </div>
+
+
     </div>
   </header>
 
