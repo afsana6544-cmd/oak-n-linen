@@ -414,7 +414,34 @@ nav a.clicked {
       color:#D7CFC8;
       font-size:13px;
     }
-    
+
+    .user-actions {
+    display: flex;
+    align-items: center;   /* 🔑 THIS fixes vertical alignment */
+    gap: 20px;
+    font-weight: 600;
+    }
+
+    .user-email {
+    display: flex;
+    align-items: center;
+    font-size: 15px;
+    color: #2B2B2B;
+    }
+
+    .logout-btn {
+     padding: 6px 10px;
+     border-radius: 8px;
+     background: #2E5E4E;
+     color: #fff;
+     text-decoration: none;
+     transition: background-color .2s ease;
+    }
+
+     .logout-btn:hover {
+     background: #244C3F;
+     }
+
   </style>
 </head>
 
@@ -458,9 +485,12 @@ nav a.clicked {
         <div class="logo-icon">OL</div>
         Oak & Linen
       </div>
-      <nav>
-        <span>Logged in as <strong id="staffEmail"></strong></span>
-        <a onclick="logout()">Logout</a>
+      <div class="user-actions">
+        <span class="user-email">
+        Logged in as: <strong id="staffEmail"></strong>
+        </span>
+        <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+      </div>
       </nav>
     </div>
   </header>
