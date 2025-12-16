@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>Place Order – Oak & Linen Furniture</title>
-  <link rel="icon" type="image/png" href="https://i.postimg.cc/WbJqbhB7/Screenshot-2025-12-16-at-6-12-50-PM.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- ================= FIREBASE INIT ================= -->
@@ -31,7 +30,12 @@
     // 🔔 Expose function globally so button can call it
     window.placeOrder = async function () {
       const name = document.getElementById("customerName").value.trim();
-      const email = document.getElementById("customerEmail").value.trim();
+      const email = document
+         .getElementById("customerEmail")
+         .value
+         .trim()
+         .toLowerCase();
+
       const phone = document.getElementById("customerPhone").value.trim();
       const address = document.getElementById("deliveryAddress").value.trim();
 
@@ -51,11 +55,13 @@
         (sum, item) => sum + item.price * item.qty,
         0
       );
-
+      
       try {
+
         await addDoc(collection(db, "orders"), {
           customerName: name,
-          email,
+          email: email,
+          emailLookup: email, // ✅ THIS FIELD IS REQUIRED
           phone,
           address,
           items: cart,
@@ -64,18 +70,20 @@
           createdAt: serverTimestamp()
         });
 
+
         // ✅ Clear cart after successful order
         localStorage.removeItem("cart");
 
         alert("Order placed successfully!");
 
         // Redirect to staff view (or home if you prefer)
-        window.location.href = "order-management.html";
+        window.location.href = "order-history.html";
       } catch (error) {
         console.error(error);
         alert("Failed to place order. Please try again.");
       }
-    };
+    }; 
+
   </script>
 
   <!-- ================= STYLES ================= -->
@@ -170,6 +178,16 @@
       border-collapse: collapse;
       margin-bottom: 10px;
     }
+
+    /* ===== Rounded table header (Cart & Order pages only) ===== */
+       table thead th:first-child {
+         border-top-left-radius: 14px;
+    }
+
+      table thead th:last-child {
+        border-top-right-radius: 14px;
+    }
+
 
     th, td {
       padding: 12px;
