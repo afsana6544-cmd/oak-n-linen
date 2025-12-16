@@ -425,6 +425,48 @@ nav a:hover {
   }
 }
 
+/* ================= SAFE MOBILE PATCH ================= */
+@media (max-width: 768px) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  main {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th, td {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 22px;
+    text-align: left;
+  }
+
+  .order-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .order-sidebar {
+    margin-bottom: 20px;
+  }
+
+  button,
+  .action-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
 
 
 </style>
